@@ -1,0 +1,148 @@
+<?xml version="1.0" ?>
+<dpinst>
+<enableNotListedLanguages/>
+<language code="0x0401">
+<dpinstTitle>Bristol Instruments WM/LSA Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Bristol Instruments WM/LSA Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Bristol Instruments WM/LSA device.</welcomeIntro>
+<finishTitle>Completing the Installation of the Bristol Instruments WM/LSA Driver</finishTitle>
+</language>
+<language code="0x0804">
+<dpinstTitle>Bristol Instruments WM/LSA Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Bristol Instruments WM/LSA Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Bristol Instruments WM/LSA device.</welcomeIntro>
+<finishTitle>Completing the Installation of the Bristol Instruments WM/LSA Driver</finishTitle>
+</language>
+<language code="0x0404">
+<dpinstTitle>Bristol Instruments WM/LSA Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Bristol Instruments WM/LSA Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Bristol Instruments WM/LSA device.</welcomeIntro>
+<finishTitle>Completing the Installation of the Bristol Instruments WM/LSA Driver</finishTitle>
+</language>
+<language code="0x0405">
+<dpinstTitle>Bristol Instruments WM/LSA Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Bristol Instruments WM/LSA Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Bristol Instruments WM/LSA device.</welcomeIntro>
+<finishTitle>Completing the Installation of the Bristol Instruments WM/LSA Driver</finishTitle>
+</language>
+<language code="0x0406">
+<dpinstTitle>Bristol Instruments WM/LSA Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Bristol Instruments WM/LSA Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Bristol Instruments WM/LSA device.</welcomeIntro>
+<finishTitle>Completing the Installation of the Bristol Instruments WM/LSA Driver</finishTitle>
+</language>
+<language code="0x0407">
+<dpinstTitle>Bristol Instruments WM/LSA Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Bristol Instruments WM/LSA Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Bristol Instruments WM/LSA device.</welcomeIntro>
+<finishTitle>Completing the Installation of the Bristol Instruments WM/LSA Driver</finishTitle>
+</language>
+<language code="0x0408">
+<dpinstTitle>Bristol Instruments WM/LSA Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Bristol Instruments WM/LSA Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Bristol Instruments WM/LSA device.</welcomeIntro>
+<finishTitle>Completing the Installation of the Bristol Instruments WM/LSA Driver</finishTitle>
+</language>
+<language code="0x0409">
+<dpinstTitle>Bristol Instruments WM/LSA Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Bristol Instruments WM/LSA Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Bristol Instruments WM/LSA device.</welcomeIntro>
+<finishTitle>Completing the Installation of the Bristol Instruments WM/LSA Driver</finishTitle>
+</language>
+<language code="0x0C0A">
+<dpinstTitle>Bristol Instruments WM/LSA Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Bristol Instruments WM/LSA Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Bristol Instruments WM/LSA device.</welcomeIntro>
+<finishTitle>Completing the Installation of the Bristol Instruments WM/LSA Driver</finishTitle>
+</language>
+<language code="0x040B">
+<dpinstTitle>Bristol Instruments WM/LSA Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Bristol Instruments WM/LSA Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Bristol Instruments WM/LSA device.</welcomeIntro>
+<finishTitle>Completing the Installation of the Bristol Instruments WM/LSA Driver</finishTitle>
+</language>
+<language code="0x040C">
+<dpinstTitle>Bristol Instruments WM/LSA Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Bristol Instruments WM/LSA Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Bristol Instruments WM/LSA device.</welcomeIntro>
+<finishTitle>Completing the Installation of the Bristol Instruments WM/LSA Driver</finishTitle>
+</language>
+<language code="0x040D">
+<dpinstTitle>Bristol Instruments WM/LSA Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Bristol Instruments WM/LSA Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Bristol Instruments WM/LSA device.</welcomeIntro>
+<finishTitle>Completing the Installation of the Bristol Instruments WM/LSA Driver</finishTitle>
+</language>
+<language code="0x040E">
+<dpinstTitle>Bristol Instruments WM/LSA Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Bristol Instruments WM/LSA Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Bristol Instruments WM/LSA device.</welcomeIntro>
+<finishTitle>Completing the Installation of the Bristol Instruments WM/LSA Driver</finishTitle>
+</language>
+<language code="0x0410">
+<dpinstTitle>Bristol Instruments WM/LSA Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Bristol Instruments WM/LSA Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Bristol Instruments WM/LSA device.</welcomeIntro>
+<finishTitle>Completing the Installation of the Bristol Instruments WM/LSA Driver</finishTitle>
+</language>
+<language code="0x0411">
+<dpinstTitle>Bristol Instruments WM/LSA Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Bristol Instruments WM/LSA Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Bristol Instruments WM/LSA device.</welcomeIntro>
+<finishTitle>Completing the Installation of the Bristol Instruments WM/LSA Driver</finishTitle>
+</language>
+<language code="0x0412">
+<dpinstTitle>Bristol Instruments WM/LSA Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Bristol Instruments WM/LSA Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Bristol Instruments WM/LSA device.</welcomeIntro>
+<finishTitle>Completing the Installation of the Bristol Instruments WM/LSA Driver</finishTitle>
+</language>
+<language code="0x0414">
+<dpinstTitle>Bristol Instruments WM/LSA Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Bristol Instruments WM/LSA Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Bristol Instruments WM/LSA device.</welcomeIntro>
+<finishTitle>Completing the Installation of the Bristol Instruments WM/LSA Driver</finishTitle>
+</language>
+<language code="0x0413">
+<dpinstTitle>Bristol Instruments WM/LSA Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Bristol Instruments WM/LSA Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Bristol Instruments WM/LSA device.</welcomeIntro>
+<finishTitle>Completing the Installation of the Bristol Instruments WM/LSA Driver</finishTitle>
+</language>
+<language code="0x0415">
+<dpinstTitle>Bristol Instruments WM/LSA Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Bristol Instruments WM/LSA Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Bristol Instruments WM/LSA device.</welcomeIntro>
+<finishTitle>Completing the Installation of the Bristol Instruments WM/LSA Driver</finishTitle>
+</language>
+<language code="0x0416">
+<dpinstTitle>Bristol Instruments WM/LSA Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Bristol Instruments WM/LSA Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Bristol Instruments WM/LSA device.</welcomeIntro>
+<finishTitle>Completing the Installation of the Bristol Instruments WM/LSA Driver</finishTitle>
+</language>
+<language code="0x0816">
+<dpinstTitle>Bristol Instruments WM/LSA Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Bristol Instruments WM/LSA Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Bristol Instruments WM/LSA device.</welcomeIntro>
+<finishTitle>Completing the Installation of the Bristol Instruments WM/LSA Driver</finishTitle>
+</language>
+<language code="0x0419">
+<dpinstTitle>Bristol Instruments WM/LSA Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Bristol Instruments WM/LSA Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Bristol Instruments WM/LSA device.</welcomeIntro>
+<finishTitle>Completing the Installation of the Bristol Instruments WM/LSA Driver</finishTitle>
+</language>
+<language code="0x041D">
+<dpinstTitle>Bristol Instruments WM/LSA Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Bristol Instruments WM/LSA Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Bristol Instruments WM/LSA device.</welcomeIntro>
+<finishTitle>Completing the Installation of the Bristol Instruments WM/LSA Driver</finishTitle>
+</language>
+<language code="0x041F">
+<dpinstTitle>Bristol Instruments WM/LSA Driver Installer</dpinstTitle>
+<welcomeTitle>Welcome to the Bristol Instruments WM/LSA Driver Installer</welcomeTitle>
+<welcomeIntro>This wizard will help you install the drivers for your Bristol Instruments WM/LSA device.</welcomeIntro>
+<finishTitle>Completing the Installation of the Bristol Instruments WM/LSA Driver</finishTitle>
+</language>
+</dpinst>

@@ -1,0 +1,7 @@
+Talker Listener Script: <<Script0>> 
+INIT:CONT?
+INIT:IMM
+INIT:CONT?
+TRACe:IQVTime:SELect:I ON
+TRACe:IQVTime:SELect:I?
+READ:IQVTime:I?

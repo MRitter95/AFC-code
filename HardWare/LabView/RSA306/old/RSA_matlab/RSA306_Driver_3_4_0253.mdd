@@ -1,0 +1,1563 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MATLABInstrumentDriver>
+   <FileVersion>2.42</FileVersion>
+   <DriverName>RSA306 Driver</DriverName>
+   <DriverType>MATLAB generic</DriverType>
+   <InstrumentType>Spectrum Analyzer</InstrumentType>
+   <InstrumentManufacturer>Tektronix</InstrumentManufacturer>
+   <InstrumentModel>RSA 306</InstrumentModel>
+   <InstrumentVersion>1.01</InstrumentVersion>
+   <Identify/>
+   <Reset/>
+   <Selftest/>
+   <Error/>
+   <CreateInitCode>
+      <Code>function init(obj)
+% This function is called after the object is created.
+% OBJ is the device object.
+% End of function definition - DO NOT EDIT
+
+if ~libisloaded('RSA300API')
+    %load the DLL
+    loadlibrary('RSA300API', @RSA300API_prototype_pcwin64);
+end
+
+if(strcmp(obj.RsrcName, ''))
+    obj.DriverData.deviceID = 0;
+else
+    obj.DriverData.deviceID = str2double(obj.RsrcName);
+end</Code>
+   </CreateInitCode>
+   <ConnectInitCode>
+      <Type>MCode</Type>
+      <Code>function init(obj)
+
+% This function is called after the object is connected.
+% OBJ is the device object.
+% End of function definition - DO NOT EDIT
+
+if ~libisloaded('RSA300API')
+    %load the DLL
+    loadlibrary('RSA300API', @RSA300API_prototype_pcwin64);
+end
+
+
+IDs = zeros(1,100); %100 devices max
+serialNum = zeros(1,20); %allocate 20 characters for the serial number
+numDev = 0;
+ 
+%create parameter pointers
+devicePtr = libpointer('longPtr', IDs);
+serialNumPtr = libpointer('voidPtr', [uint16(serialNum) 0]); %voidPtr to hold wchar_t*
+numDevicesPtr = libpointer('int32Ptr', numDev);
+
+%search for the device.
+%devicePtr: Will contain an array of found devices
+%numDevicesPtr: The amount of devices found
+ReturnStatus = calllib('RSA300API', 'Search', devicePtr, serialNumPtr, numDevicesPtr);
+
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:Search', 'error returned from Search: %s', errorMessage);
+end
+
+%place the found device IDs in an array
+deviceIDs = [];
+for i=1:numDevicesPtr.Value
+    deviceIDs = [deviceIDs devicePtr.Value(i)];
+end
+
+serialNumber = char(serialNumPtr.Value); %convert from decimal to ASCII
+numDevices = numDevicesPtr.Value;
+
+if numDevices == 0
+    error('no RSA306 devices detected.');
+end
+
+if ~strcmp(obj.DriverData.deviceID, '')
+    if(obj.DriverData.deviceID + 1 &gt; numDevices)
+        error('Device ID %d does not exist. Please use a valid device ID.\nValid device IDs returned from search: %s', obj.DriverData.deviceID, num2str(deviceIDs, ' %d,'))
+    end
+end
+
+delete(numDevicesPtr);
+delete(serialNumPtr);
+delete(devicePtr);
+
+ReturnStatus = calllib('RSA300API', 'Connect', obj.DriverData.deviceID);
+
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:Connect', 'Attempted to connect to device %d\nError returned from Connect: %s', obj.DriverData.deviceID, errorMessage);
+end
+
+obj.DriverData.serialNumber = serialNumber;</Code>
+   </ConnectInitCode>
+   <CleanupCode>
+      <Type>MCode</Type>
+      <Code>function cleanup(obj)
+% This function is called before the object is disconnected.
+% OBJ is the device object.
+% End of function definition - DO NOT EDIT
+
+ReturnStatus = calllib('RSA300API', 'Disconnect');
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:Disconnect', 'error returned from Disconnect: %s', errorMessage);
+end</Code>
+   </CleanupCode>
+   <GroupInfo>
+      <Group>
+         <Name>parent</Name>
+         <Description/>
+         <Command/>
+         <Size>1</Size>
+         <Mappings>
+            <ChannelMap Command="parent1" Index="1"/>
+         </Mappings>
+         <PropertyInfo>
+            <Property>
+               <Name>SerialNumber</Name>
+               <Location>parent</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <GetMCode>function propertyValue = getProperty(obj, propertyName)
+% Return a property value.
+%   This function is called to return the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+
+propertyValue = obj.DriverData.serialNumber;</GetMCode>
+                  <SetMCode>function set(obj, propertyName, propertyValue)
+% Set a property value.
+%   This function is called to set the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+</SetMCode>
+               </Code>
+               <PermissibleType>
+                  <Type>String</Type>
+                  <Constraint>none</Constraint>
+               </PermissibleType>
+               <DefaultValue/>
+               <ReadOnly>never</ReadOnly>
+               <Description/>
+            </Property>
+         </PropertyInfo>
+         <MethodInfo/>
+      </Group>
+      <Group>
+         <Name>acquisition</Name>
+         <Description/>
+         <Command/>
+         <Size>1</Size>
+         <Mappings>
+            <ChannelMap Command="Acquisition1" Index="1"/>
+         </Mappings>
+         <PropertyInfo>
+            <Property>
+               <Name>CenterFrequency</Name>
+               <Location>acquisition</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <GetMCode>function propertyValue = getProperty(obj, propertyName)
+% Return a property value.
+%   This function is called to return the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+
+%create pointer parameter
+centerFreq = 0;
+centerFreqPtr = libpointer('doublePtr', centerFreq);
+
+%query the center frequency
+ReturnStatus = calllib('RSA300API', 'GetCenterFreq', centerFreqPtr);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:GetCenterFrequency', 'error returned from GetCenterFrequency: %s', errorMessage);
+end
+
+propertyValue = centerFreqPtr.Value;
+
+delete(centerFreqPtr);</GetMCode>
+                  <SetMCode>function set(obj, propertyName, propertyValue)
+% Set a property value.
+%   This function is called to set the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+
+%The reference level depends on the center frequency. This function updates
+%the reference level after the center frequency is set.
+
+ReturnStatus = calllib('RSA300API', 'SetCenterFreq', propertyValue); %The desired operation, sets center frequency
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:SetCenterFreq', 'error returned from SetCenterFreq: %s', errorMessage);
+end</SetMCode>
+               </Code>
+               <PermissibleType>
+                  <Type>Double</Type>
+                  <Constraint>bounded</Constraint>
+                  <ConstraintValue>
+                     <Range Max="6.2E9" Min="0.0"/>
+                  </ConstraintValue>
+               </PermissibleType>
+               <DefaultValue>0.0</DefaultValue>
+               <ReadOnly>never</ReadOnly>
+               <Description/>
+            </Property>
+            <Property>
+               <Name>IQBandwidth</Name>
+               <Location>acquisition</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <GetMCode>function propertyValue = getProperty(obj, propertyName)
+% Return a property value.
+%   This function is called to return the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+
+%create the parameter pointer
+iqbw = 0;
+iqbwPtr = libpointer('doublePtr', iqbw);
+
+%query the span
+ReturnStatus = calllib('RSA300API', 'GetIQBandwidth', iqbwPtr);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:GetIQBandwidth', 'error returned from GetIQBandwidth: %s', errorMessage);
+end
+
+propertyValue = iqbwPtr.Value;
+
+delete(iqbwPtr);</GetMCode>
+                  <SetMCode>function set(obj, propertyName, propertyValue)
+% Set a property value.
+%   This function is called to set the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+
+ReturnStatus = calllib('RSA300API', 'SetIQBandwidth', propertyValue);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:SetIQBandwidth', 'error returned from SetIQBandwidth: %s', errorMessage);
+end</SetMCode>
+               </Code>
+               <PermissibleType>
+                  <Type>Double</Type>
+                  <Constraint>bounded</Constraint>
+                  <ConstraintValue>
+                     <Range Max="4.0E7" Min="0.0"/>
+                  </ConstraintValue>
+               </PermissibleType>
+               <DefaultValue>0</DefaultValue>
+               <ReadOnly>never</ReadOnly>
+               <Description/>
+            </Property>
+            <Property>
+               <Name>IQRecordLength</Name>
+               <Location>acquisition</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <GetMCode>function propertyValue = getProperty(obj, propertyName)
+% Return a property value.
+%   This function is called to return the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+
+%create pointer parameter
+rec_len = 0;
+lengthPtr = libpointer('longPtr', rec_len);
+
+%query the IQRecordLength
+ReturnStatus = calllib('RSA300API', 'GetIQRecordLength', lengthPtr);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:GetIQRecordLength', 'error returned from GetIQRecordLength: %s', errorMessage);
+end
+
+propertyValue = lengthPtr.Value;
+
+delete(lengthPtr);</GetMCode>
+                  <SetMCode>function set(obj, propertyName, propertyValue)
+% Set a property value.
+%   This function is called to set the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+
+ReturnStatus = calllib('RSA300API', 'SetIQRecordLength', propertyValue);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:SetIQRecordLength', 'error returned from SetIQRecordLength: %s', errorMessage);
+end</SetMCode>
+               </Code>
+               <PermissibleType>
+                  <Type>Double</Type>
+                  <Constraint>bounded</Constraint>
+                  <ConstraintValue>
+                     <Range Max="5250000.0" Min="1.0"/>
+                  </ConstraintValue>
+               </PermissibleType>
+               <DefaultValue>1.0</DefaultValue>
+               <ReadOnly>never</ReadOnly>
+               <Description/>
+            </Property>
+            <Property>
+               <Name>IQSampleRate</Name>
+               <Location>acquisition</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <GetMCode>function propertyValue = getProperty(obj, propertyName)
+% Return a property value.
+%   This function is called to return the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+
+%create the pointer parameter
+sampleRate = 0;
+sampleRatePtr = libpointer('doublePtr', sampleRate);
+
+%query the IQ sampling frequency
+ReturnStatus = calllib('RSA300API', 'GetIQSampleRate', sampleRatePtr);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:GetIQSampleRate', 'error returned from GetIQSampleRate: %s', errorMessage);
+end
+
+propertyValue = sampleRatePtr.Value;
+
+delete(sampleRatePtr);</GetMCode>
+                  <SetMCode>function set(obj, propertyName, propertyValue)
+% Set a property value.
+%   This function is called to set the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+
+x = propertyValue; %Constant, set is not implemented
+</SetMCode>
+               </Code>
+               <PermissibleType>
+                  <Type>Double</Type>
+                  <Constraint>none</Constraint>
+               </PermissibleType>
+               <DefaultValue>0</DefaultValue>
+               <ReadOnly>never</ReadOnly>
+               <Description/>
+            </Property>
+         </PropertyInfo>
+         <MethodInfo/>
+      </Group>
+      <Group>
+         <Name>alignment</Name>
+         <Description/>
+         <Command/>
+         <Size>1</Size>
+         <Mappings>
+            <ChannelMap Command="Alignment1" Index="1"/>
+         </Mappings>
+         <PropertyInfo/>
+         <MethodInfo/>
+      </Group>
+      <Group>
+         <Name>amplitude</Name>
+         <Description/>
+         <Command/>
+         <Size>1</Size>
+         <Mappings>
+            <ChannelMap Command="Amplitude1" Index="1"/>
+         </Mappings>
+         <PropertyInfo>
+            <Property>
+               <Name>ReferenceLevel</Name>
+               <Location>amplitude</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <GetMCode>function propertyValue = getProperty(obj, propertyName)
+% Return a property value.
+%   This function is called to return the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+
+%create pointer parameter
+refLvl = 0;
+refLvlPtr = libpointer('doublePtr', refLvl);
+
+%queryu the reference level
+ReturnStatus = calllib('RSA300API', 'GetReferenceLevel', refLvlPtr);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:GetReferenceLevel', 'error returned from GetReferenceLevel: %s', errorMessage);
+end
+
+propertyValue = refLvlPtr.Value;
+
+delete(refLvlPtr);</GetMCode>
+                  <SetMCode>function set(obj, propertyName, propertyValue)
+% Set a property value.
+%   This function is called to set the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+
+ReturnStatus = calllib('RSA300API', 'SetReferenceLevel', propertyValue);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:SetReferenceLevel', 'error returned from SetReferenceLevel: %s', errorMessage);
+end</SetMCode>
+               </Code>
+               <PermissibleType>
+                  <Type>Double</Type>
+                  <Constraint>bounded</Constraint>
+                  <ConstraintValue>
+                     <Range Max="30.0" Min="-130.0"/>
+                  </ConstraintValue>
+               </PermissibleType>
+               <DefaultValue>-130.0</DefaultValue>
+               <ReadOnly>never</ReadOnly>
+               <Description/>
+            </Property>
+         </PropertyInfo>
+         <MethodInfo/>
+      </Group>
+      <Group>
+         <Name>audio</Name>
+         <Description/>
+         <Command/>
+         <Size>1</Size>
+         <Mappings>
+            <ChannelMap Command="Audio1" Index="1"/>
+         </Mappings>
+         <PropertyInfo>
+            <Property>
+               <Name>Mode</Name>
+               <Location>audio</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <GetMCode>function propertyValue = getProperty(obj, propertyName)
+% Return a property value.
+%   This function is called to return the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+
+mode = 0;
+modePtr = libpointer('AudioDemodMode', mode);
+
+ReturnStatus = calllib('RSA300API', 'AUDIO_GetMode', modePtr);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:AUDIO_GetMode', 'error returned from AUDIO_GetMode: %s', errorMessage);
+end
+
+propertyValue = modePtr.Value;
+
+delete(modePtr);</GetMCode>
+                  <SetMCode>function set(obj, propertyName, propertyValue)
+% Set a property value.
+%   This function is called to set the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+
+ReturnStatus = calllib('RSA300API', 'AUDIO_SetMode', propertyValue);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:AUDIO_SetMode', 'error returned from AUDIO_SetMode: %s', errorMessage);
+end</SetMCode>
+               </Code>
+               <PermissibleType>
+                  <Type>Double</Type>
+                  <Constraint>enum</Constraint>
+                  <ConstraintValue>
+                     <Value>0.0</Value>
+                     <Value>1.0</Value>
+                     <Value>2.0</Value>
+                     <Value>3.0</Value>
+                     <Value>4.0</Value>
+                  </ConstraintValue>
+               </PermissibleType>
+               <DefaultValue>0.0</DefaultValue>
+               <ReadOnly>never</ReadOnly>
+               <Description/>
+            </Property>
+            <Property>
+               <Name>Mute</Name>
+               <Location>audio</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <GetMCode>function propertyValue = getProperty(obj, propertyName)
+% Return a property value.
+%   This function is called to return the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+
+str = '';
+mutePtr = libpointer('voidPtr', [int8(str) 0]);
+
+ReturnStatus = calllib('RSA300API', 'AUDIO_GetMute', mutePtr);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:AUDIO_GetMute', 'error returned from AUDIO_GetMute: %s', errorMessage);
+end
+
+propertyValue = mutePtr.Value
+
+delete(mutePtr)</GetMCode>
+                  <SetMCode>function set(obj, propertyName, propertyValue)
+% Set a property value.
+%   This function is called to set the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+
+ReturnStatus = calllib('RSA300API', 'AUDIO_SetMute', propertyValue);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:AUDIO_SetMute', 'error returned from AUDIO_SetMute: %s', errorMessage);
+end</SetMCode>
+               </Code>
+               <PermissibleType>
+                  <Type>Boolean</Type>
+                  <Constraint>none</Constraint>
+               </PermissibleType>
+               <DefaultValue>off</DefaultValue>
+               <ReadOnly>never</ReadOnly>
+               <Description/>
+            </Property>
+            <Property>
+               <Name>Volume</Name>
+               <Location>audio</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <GetMCode>function propertyValue = getProperty(obj, propertyName)
+% Return a property value.
+%   This function is called to return the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+
+volume = 0;
+volumePtr = libpointer('singlePtr', volume);
+
+ReturnStatus = calllib('RSA300API', 'AUDIO_GetVolume', volumePtr);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:AUDIO_GetVolume', 'error returned from AUDIO_GetVolume: %s', errorMessage);
+end
+
+propertyValue = volumePtr.Value;
+
+delete(volumePtr)</GetMCode>
+                  <SetMCode>function set(obj, propertyName, propertyValue)
+% Set a property value.
+%   This function is called to set the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+
+ReturnStatus = calllib('RSA300API', 'AUDIO_SetVolume', propertyValue);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:AUDIO_SetMute', 'error returned from AUDIO_SetMute: %s', errorMessage);
+end</SetMCode>
+               </Code>
+               <PermissibleType>
+                  <Type>Double</Type>
+                  <Constraint>bounded</Constraint>
+                  <ConstraintValue>
+                     <Range Max="1.0" Min="0.0"/>
+                  </ConstraintValue>
+               </PermissibleType>
+               <DefaultValue>0.0</DefaultValue>
+               <ReadOnly>never</ReadOnly>
+               <Description/>
+            </Property>
+         </PropertyInfo>
+         <MethodInfo>
+            <Method>
+               <Name>GetData</Name>
+               <Location>audio</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function [AudioData] = GetData(obj, maxSize)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+
+%AudioData = zeros(1,maxSize);
+%audioDataPtr = libpointer('int16Ptr', AudioData);
+
+%outSize = 0;
+%outSizePtr = libpointer('uint16Ptr', outSize);
+
+%To Be Implemented: Currently crashes MATLAB
+%ReturnStatus = calllib('RSA300API', 'AUDIO_GetData', audioDataPtr, maxSize, outSizePtr);
+%if (strcmp(ReturnStatus, 'noError') == 0)
+%    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+%    error('RSA300API:AUDIO_StartAudio', 'error returned from AUDIO_StartAudio: %s', errorMessage);
+%end
+
+%AudioData = audioDataPtr.Value;
+%delete(audioDataPtr);
+%delete(outSizePtr);</MCode>
+               </Code>
+               <Description/>
+            </Method>
+            <Method>
+               <Name>StartAudio</Name>
+               <Location>audio</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function StartAudio(obj)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+
+ReturnStatus = calllib('RSA300API', 'AUDIO_StartAudio')
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:AUDIO_StartAudio', 'error returned from AUDIO_StartAudio: %s', errorMessage);
+end</MCode>
+               </Code>
+               <Description/>
+            </Method>
+            <Method>
+               <Name>StopAudio</Name>
+               <Location>audio</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function StopAudio(obj)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+
+ReturnStatus = calllib('RSA300API', 'AUDIO_StopAudio')
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:AUDIO_StopAudio', 'error returned from AUDIO_StopAudio: %s', errorMessage);
+end</MCode>
+               </Code>
+               <Description/>
+            </Method>
+         </MethodInfo>
+      </Group>
+      <Group>
+         <Name>configure</Name>
+         <Description/>
+         <Command/>
+         <Size>1</Size>
+         <Mappings>
+            <ChannelMap Command="Configure1" Index="1"/>
+         </Mappings>
+         <PropertyInfo/>
+         <MethodInfo/>
+      </Group>
+      <Group>
+         <Name>connection</Name>
+         <Description/>
+         <Command/>
+         <Size>1</Size>
+         <Mappings>
+            <ChannelMap Command="Connection1" Index="1"/>
+         </Mappings>
+         <PropertyInfo/>
+         <MethodInfo>
+            <Method>
+               <Name>Search</Name>
+               <Location>connection</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function [devIDs, serialNumber, numDevices] = Search(obj)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+
+IDs = zeros(1,100); %100 devices max
+serialNum = zeros(1,20); %allocate 20 characters for the serial number
+numDev = 0;
+ 
+%create parameter pointers
+devicePtr = libpointer('longPtr', IDs);
+serialNumPtr = libpointer('voidPtr', [uint16(serialNum) 0]); %voidPtr to hold wchar_t*
+numDevicesPtr = libpointer('int32Ptr', numDev);
+
+%search for the device.
+%devicePtr: Will contain an array of found devices
+%numDevicesPtr: The amount of devices found
+ReturnStatus = calllib('RSA300API', 'Search', devicePtr, serialNumPtr, numDevicesPtr);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:Search', 'error returned from Search: %s', errorMessage);
+end
+
+%place the found device IDs in an array
+deviceIDs = [];
+for i=1:numDevicesPtr.Value
+    deviceIDs = [deviceIDs devicePtr.Value(i)];
+end
+
+
+devIDs = deviceIDs;
+serialNumber = char(serialNumPtr.Value); %convert from decimal to ASCII
+numDevices = numDevicesPtr.Value;
+
+delete(numDevicesPtr);
+delete(serialNumPtr);
+delete(devicePtr);</MCode>
+               </Code>
+               <Description/>
+            </Method>
+         </MethodInfo>
+      </Group>
+      <Group>
+         <Name>dpx</Name>
+         <Description/>
+         <Command/>
+         <Size>1</Size>
+         <Mappings>
+            <ChannelMap Command="DPX1" Index="1"/>
+         </Mappings>
+         <PropertyInfo/>
+         <MethodInfo>
+            <Method>
+               <Name>Configure</Name>
+               <Location>dpx</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function Configure(obj, spectrumEnabled, sogramEnabled)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+
+ReturnStatus = calllib('RSA300API', 'DPX_Configure', spectrumEnabled, sogramEnabled);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:DPX_Configure', 'error returned from DPX_Configure: %s', errorMessage);
+end</MCode>
+               </Code>
+               <Description/>
+            </Method>
+            <Method>
+               <Name>FindRBWRange</Name>
+               <Location>dpx</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function [minRBW, maxRBW] = FindRBWRange(obj, fspan)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+
+min = 0.0;
+max = 0.0;
+minRBWPtr = libpointer('doublePtr', min);
+maxRBWPtr = libpointer('doublePtr', max);
+
+ReturnStatus = calllib('RSA300API', 'DPX_FindRBWRange', fspan, minRBWPtr, maxRBWPtr);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:DPX_FindRBWRange', 'error returned from DPX_FindRBWRange: %s', errorMessage);
+end
+minRBW = minRBWPtr.Value;
+maxRBW = maxRBWPtr.Value;
+
+delete(minRBWPtr);
+delete(maxRBWPtr);</MCode>
+               </Code>
+               <Description/>
+            </Method>
+            <Method>
+               <Name>FinishFrameBuffer</Name>
+               <Location>dpx</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function FinishFrameBuffer(obj)
+% If this is a group function, OBJ is the group object. If
+% it a base device function, OBJ is the device object.
+
+ReturnStatus = calllib('RSA300API', 'DPX_FinishFrameBuffer');
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:DPX_FinishFrameBuffer', 'error returned from DPX_FinishFrameBuffer: %s', errorMessage);
+end</MCode>
+               </Code>
+               <Description/>
+            </Method>
+            <Method>
+               <Name>GetFrameBuffer</Name>
+               <Location>dpx</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function [FrameBuffer] = GetFrameBuffer(obj)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+
+buf.fftPerFrame = 0;
+bufPtr = libpointer('DPX_FrameBuffer', buf);
+
+ReturnStatus = calllib('RSA300API', 'DPX_GetFrameBuffer', bufPtr);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:DPX_GetFrameBuffer', 'error returned from DPX_GetFrameBuffer: %s', errorMessage);
+end
+
+setdatatype(bufPtr.Value.spectrumTraces,'singlePtr', bufPtr.Value.spectrumTraceLength,3);
+setdatatype(bufPtr.Value.spectrumBitmap,'singlePtr', 1, bufPtr.Value.spectrumBitmapSize);
+setdatatype(bufPtr.Value.sogramBitmap,'uint8Ptr', 1, bufPtr.Value.sogramBitmapSize);
+setdatatype(bufPtr.Value.sogramBitmapContainTriggerArray,'int16Ptr',1,bufPtr.Value.sogramBitmapHeight);
+setdatatype(bufPtr.Value.sogramBitmapTimestampArray,'doublePtr',1,bufPtr.Value.sogramBitmapHeight);
+
+FrameBuffer = bufPtr.Value;
+clear bufPtr;
+clear buf;</MCode>
+               </Code>
+               <Description/>
+            </Method>
+            <Method>
+               <Name>GetSettings</Name>
+               <Location>dpx</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function [Settings] = GetSettings(obj)
+% If this is a group function, OBJ is the group object. If
+% it a base device function, OBJ is the device object.
+
+settings.enableSpectrum = false;
+settings.enableSpectrogram = false;
+settings.bitmapWidth = 0;
+settings.bitmapHeight = 0;
+settings.traceLength = 0;
+settings.decayFactor = 0;
+settings.actualRBW = 0;
+s = libpointer('DPX_SettingsStruct', settings);
+
+ReturnStatus = calllib('RSA300API', 'DPX_GetSettings', s);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:DPX_GetSettings', 'error returned from DPX_GetSettings: %s', errorMessage);
+end
+
+Settings = s.Value;
+clear s;
+clear settings;</MCode>
+               </Code>
+               <Description/>
+            </Method>
+            <Method>
+               <Name>GetSogramHiResLine</Name>
+               <Location>dpx</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function [sogramLine, scalingFactor] = GetSogramHiResLine(obj, lineIndex, tracePoints, firstValidPoint)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+
+sogramLine = zeros(1, tracePoints);
+sogramLineSize = 0;
+scalingFactor = 0;
+sogramLinePtr = libpointer('int16Ptr', sogramLine);
+sogramLineSizePtr = libpointer('int32Ptr', sogramLineSize);
+scalingFactorPtr = libpointer('doublePtr', scalingFactor);
+
+ReturnStatus = calllib('RSA300API', 'DPX_GetSogramHiResLine', sogramLinePtr, sogramLineSizePtr, lineIndex, scalingFactorPtr, tracePoints, firstValidPoint);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:DPX_GetSogramHiResLine', 'error returned from DPX_GetSogramHiResLine: %s', errorMessage);
+end
+
+sogramLine = sogramLinePtr.Value;
+scalingFactor = scalingFactorPtr.Value;
+
+clear sogramLinePtr;
+clear sogramLineSizePtr;
+clear scalingFactorPtr;</MCode>
+               </Code>
+               <Description/>
+            </Method>
+            <Method>
+               <Name>GetSogramHiResLineCountLatest</Name>
+               <Location>dpx</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function [lineCount] = GetSogramHiResLineCountLatest(obj)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+
+lineCount = 0;
+lineCountPtr = libpointer('int32Ptr', lineCount);
+
+ReturnStatus = calllib('RSA300API', 'DPX_GetSogramHiResLineCountLatest', lineCountPtr);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:DPX_GetSogramHiResLineCountLatest', 'error returned from DPX_GetSogramHiResLineCountLatest: %s', errorMessage);
+end
+
+lineCount = lineCountPtr.Value;
+
+clear lineCountPtr;</MCode>
+               </Code>
+               <Description/>
+            </Method>
+            <Method>
+               <Name>GetSogramHiResLineTimestamp</Name>
+               <Location>dpx</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function [timestamp] = GetSogramHiResLineTimestamp(obj, lineIndex)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+
+timestamp = 0;
+timestampPtr = libpointer('doublePtr', timestamp);
+
+ReturnStatus = calllib('RSA300API', 'DPX_GetSogramHiResLineTimestamp', timestampPtr, lineIndex);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:DPX_GetSogramHiResLineTimestamp', 'error returned from DPX_GetSogramHiResLineTimestamp: %s', errorMessage);
+end
+
+timestamp = timestampPtr.Value;
+
+clear timestampPtr;</MCode>
+               </Code>
+               <Description/>
+            </Method>
+            <Method>
+               <Name>GetSogramHiResLineTriggered</Name>
+               <Location>dpx</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function [trigger] = GetSogramHiResLineTriggered(obj, lineIndex)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+
+str = '';
+triggerPtr = libpointer('voidPtr', [int8(str) 0]);
+
+ReturnStatus = calllib('RSA300API', 'DPX_GetSogramHiResLineTriggered', triggerPtr, lineIndex);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:DPX_GetSogramHiResLineTriggered', 'error returned from DPX_GetSogramHiResLineTriggered: %s', errorMessage);
+end
+
+trigger = triggerPtr.Value;
+
+clear triggerPtr;</MCode>
+               </Code>
+               <Description/>
+            </Method>
+            <Method>
+               <Name>GetSogramSettings</Name>
+               <Location>dpx</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function [Settings] = GetSogramSettings(obj)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+
+settings.bitmapWidth = 0;
+settings.bitmapHeight = 0;
+settings.sogramTraceLineTime = 0.0;
+settings.sogramBitmapLineTime = 0.0;
+s = libpointer('DPX_SogramSettingsStruct', settings);
+
+ReturnStatus = calllib('RSA300API', 'DPX_GetSogramSettings', s);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:DPX_GetSettings', 'error returned from DPX_GetSettings: %s', errorMessage);
+end
+
+Settings = s.Value;
+clear s;
+clear settings;</MCode>
+               </Code>
+               <Description/>
+            </Method>
+            <Method>
+               <Name>IsFrameBufferAvailable</Name>
+               <Location>dpx</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function [bufferAvailable] = IsFrameBufferAvailable(obj)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+
+%create parameter pointer
+str = '';
+readyPtr = libpointer('voidPtr', [int8(str) 0]);
+
+ReturnStatus = calllib('RSA300API', 'DPX_IsFrameBufferAvailable', readyPtr);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:DPX_GetSettings', 'error returned from DPX_GetSettings: %s', errorMessage);
+end
+
+bufferAvailable = readyPtr.Value;
+
+delete(readyPtr);</MCode>
+               </Code>
+               <Description/>
+            </Method>
+            <Method>
+               <Name>ResetDPX</Name>
+               <Location>dpx</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function ResetDPX(obj)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+
+ReturnStatus = calllib('RSA300API', 'DPX_ResetDPx');
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:DPX_ResetDPx', 'error returned from DPX_ResetDPx: %s', errorMessage);
+end</MCode>
+               </Code>
+               <Description/>
+            </Method>
+            <Method>
+               <Name>SetDPXEnabled</Name>
+               <Location>dpx</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function SetDPXEnabled(obj, dpxEnabled)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+
+ReturnStatus = calllib('RSA300API', 'SetDPXEnabled', dpxEnabled);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:SetDPXEnabled', 'error returned from SetDPXEnabled: %s', errorMessage);
+end</MCode>
+               </Code>
+               <Description/>
+            </Method>
+            <Method>
+               <Name>SetParameters</Name>
+               <Location>dpx</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function SetParameters(obj, fspan, rbw, bitmapWidth, tracePtsPerPixel, yUnit, yTop, yBottom, infinitePersistance, persistanceTimeSec, showOnlyTrigFrame)
+% If this is a group function, OBJ is the group object. If
+% it a base device function, OBJ is the device object.
+
+ReturnStatus = calllib('RSA300API', 'DPX_SetParameters', fspan, rbw, bitmapWidth, tracePtsPerPixel, yUnit, yTop, yBottom, infinitePersistance, persistanceTimeSec, showOnlyTrigFrame);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:DPX_SetParameters', 'error returned from DPX_SetParameters: %s', errorMessage);
+end</MCode>
+               </Code>
+               <Description/>
+            </Method>
+            <Method>
+               <Name>SetSogramParameters</Name>
+               <Location>dpx</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function SetSogramParameters(obj, timePerBitmapLine, timeResolution, maxPower, minPower)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+
+ReturnStatus = calllib('RSA300API', 'DPX_SetSogramParameters', timePerBitmapLine, timeResolution, maxPower, minPower);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:DPX_SetSogramParameters', 'error returned from DPX_SetSogramParameters: %s', errorMessage);
+end</MCode>
+               </Code>
+               <Description/>
+            </Method>
+            <Method>
+               <Name>SetSogramTraceType</Name>
+               <Location>dpx</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function SetSogramTraceType(obj, traceType)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+
+ReturnStatus = calllib('RSA300API', 'DPX_SetSogramTraceType', traceType);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:DPX_SetSogramTraceType', 'error returned from DPX_SetSogramTraceType: %s', errorMessage);
+end</MCode>
+               </Code>
+               <Description/>
+            </Method>
+            <Method>
+               <Name>SetSpectrumTraceType</Name>
+               <Location>dpx</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function SetSpectrumTraceType(obj, trace, type)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+
+ReturnStatus = calllib('RSA300API', 'DPX_SetSpectrumTraceType', trace, type);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:DPX_SetSpectrumTraceType', 'error returned from DPX_SetSpectrumTraceType: %s', errorMessage);
+end</MCode>
+               </Code>
+               <Description/>
+            </Method>
+            <Method>
+               <Name>WaitForDPXDataReady</Name>
+               <Location>dpx</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function [DataReady] = WaitForDPXDataReady(obj, timeout)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+
+%create parameter pointer
+str = '';
+readyPtr = libpointer('voidPtr', [int8(str) 0]);
+
+ReturnStatus = calllib('RSA300API', 'WaitForDPXDataReady', timeout, readyPtr);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:WaitForDPXDataReady', 'error returned from WaitForDPXDataReady: %s', errorMessage);
+end
+
+DataReady = readyPtr.Value;
+
+delete(readyPtr);</MCode>
+               </Code>
+               <Description/>
+            </Method>
+         </MethodInfo>
+      </Group>
+      <Group>
+         <Name>system</Name>
+         <Description/>
+         <Command/>
+         <Size>1</Size>
+         <Mappings>
+            <ChannelMap Command="System1" Index="1"/>
+         </Mappings>
+         <PropertyInfo/>
+         <MethodInfo/>
+      </Group>
+      <Group>
+         <Name>trigger</Name>
+         <Description/>
+         <Command/>
+         <Size>1</Size>
+         <Mappings>
+            <ChannelMap Command="Trigger1" Index="1"/>
+         </Mappings>
+         <PropertyInfo>
+            <Property>
+               <Name>IFPowerLevel</Name>
+               <Location>trigger</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <GetMCode>function propertyValue = getProperty(obj, propertyName)
+% Return a property value.
+%   This function is called to return the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+power = 0;
+powerPtr = libpointer('doublePtr', power);
+ReturnStatus = calllib('RSA300API', 'GetIFPowerTriggerLevel', powerPtr);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:GetIFPowerTriggerLevel', 'error returned from GetIFPowerTriggerLevel: %s', errorMessage);
+end
+propertyValue = powerPtr.Value;
+
+delete(powerPtr);</GetMCode>
+                  <SetMCode>function set(obj, propertyName, propertyValue)
+% Set a property value.
+%   This function is called to set the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+
+ReturnStatus = calllib('RSA300API', 'SetIFPowerTriggerLevel', propertyValue);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:SetIFPowerTriggerLevel', 'error returned from SetIFPowerTriggerLevel: %s', errorMessage);
+end</SetMCode>
+               </Code>
+               <PermissibleType>
+                  <Type>Double</Type>
+                  <Constraint>none</Constraint>
+               </PermissibleType>
+               <DefaultValue>0</DefaultValue>
+               <ReadOnly>never</ReadOnly>
+               <Description/>
+            </Property>
+            <Property>
+               <Name>Mode</Name>
+               <Location>trigger</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <GetMCode>function propertyValue = getProperty(obj, propertyName)
+% Return a property value.
+%   This function is called to return the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+
+trig = 0;
+trigPtr = libpointer('TriggerMode', trig);
+ReturnStatus = calllib('RSA300API', 'GetTriggerMode', trigPtr);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:GetTriggerMode', 'error returned from GetTriggerMode: %s', errorMessage);
+end
+
+propertyValue = trigPtr.Value;
+
+delete(trigPtr);</GetMCode>
+                  <SetMCode>function set(obj, propertyName, propertyValue)
+% Set a property value.
+%   This function is called to set the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+
+ReturnStatus = calllib('RSA300API', 'SetTriggerMode', propertyValue);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:SetTriggerMode', 'error returned from SetTriggerMode: %s', errorMessage);
+end</SetMCode>
+               </Code>
+               <PermissibleType>
+                  <Type>Double</Type>
+                  <Constraint>none</Constraint>
+               </PermissibleType>
+               <DefaultValue>0</DefaultValue>
+               <ReadOnly>never</ReadOnly>
+               <Description/>
+            </Property>
+            <Property>
+               <Name>Position</Name>
+               <Location>trigger</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <GetMCode>function propertyValue = getProperty(obj, propertyName)
+% Return a property value.
+%   This function is called to return the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+pos = 0;
+posPtr = libpointer('doublePtr', pos);
+ReturnStatus = calllib('RSA300API', 'GetTriggerPositionPercent', posPtr);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:GetTriggerPositionPercent', 'error returned from GetTriggerPositionPercent: %s', errorMessage);
+end
+
+propertyValue = posPtr.Value;
+
+delete(posPtr);</GetMCode>
+                  <SetMCode>function set(obj, propertyName, propertyValue)
+% Set a property value.
+%   This function is called to set the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+
+ReturnStatus = calllib('RSA300API', 'SetTriggerPositionPercent', propertyValue);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:SetTriggerPositionPercent', 'error returned from SetTriggerPositionPercent: %s', errorMessage);
+end</SetMCode>
+               </Code>
+               <PermissibleType>
+                  <Type>Double</Type>
+                  <Constraint>none</Constraint>
+               </PermissibleType>
+               <DefaultValue>0</DefaultValue>
+               <ReadOnly>never</ReadOnly>
+               <Description/>
+            </Property>
+            <Property>
+               <Name>Source</Name>
+               <Location>trigger</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <GetMCode>function propertyValue = getProperty(obj, propertyName)
+% Return a property value.
+%   This function is called to return the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+source = 0;
+sourcePtr = libpointer('TriggerSource', source);
+ReturnStatus = calllib('RSA300API', 'GetTriggerSource', sourcePtr);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:GetTriggerSource', 'error returned from GetTriggerSource: %s', errorMessage);
+end
+
+propertyValue = sourcePtr.Value;
+
+delete(sourcePtr);</GetMCode>
+                  <SetMCode>function set(obj, propertyName, propertyValue)
+% Set a property value.
+%   This function is called to set the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+
+ReturnStatus = calllib('RSA300API', 'SetTriggerSource', propertyValue);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:SetTriggerSource', 'error returned from SetTriggerSource: %s', errorMessage);
+end</SetMCode>
+               </Code>
+               <PermissibleType>
+                  <Type>Double</Type>
+                  <Constraint>none</Constraint>
+               </PermissibleType>
+               <DefaultValue>0</DefaultValue>
+               <ReadOnly>never</ReadOnly>
+               <Description/>
+            </Property>
+            <Property>
+               <Name>Transition</Name>
+               <Location>trigger</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <GetMCode>function propertyValue = getProperty(obj, propertyName)
+% Return a property value.
+%   This function is called to return the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+transition = 0;
+transistionPtr = libpointer('TriggerTransition', transition);
+ReturnStatus = calllib('RSA300API', 'GetTriggerTransition', transistionPtr);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:GetTriggerTransition', 'error returned from GetTriggerTransition: %s', errorMessage);
+end
+
+propertyValue = transistionPtr.Value;
+
+delete(transistionPtr);</GetMCode>
+                  <SetMCode>function set(obj, propertyName, propertyValue)
+% Set a property value.
+%   This function is called to set the device or group object property
+%   value. If the property is a group property, OBJ is the group object. If
+%   the property is a base device property, OBJ is the device object.
+
+ReturnStatus = calllib('RSA300API', 'SetTriggerTransition', propertyValue);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:SetTriggerTransition', 'error returned from SetTriggerTransition: %s', errorMessage);
+end
+</SetMCode>
+               </Code>
+               <PermissibleType>
+                  <Type>Double</Type>
+                  <Constraint>none</Constraint>
+               </PermissibleType>
+               <DefaultValue>0</DefaultValue>
+               <ReadOnly>never</ReadOnly>
+               <Description/>
+            </Property>
+         </PropertyInfo>
+         <MethodInfo>
+            <Method>
+               <Name>ForceTrigger</Name>
+               <Location>trigger</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function ForceTrigger(obj)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+ReturnStatus = calllib('RSA300API', 'ForceTrigger');
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:ForceTrigger', 'error returned from ForceTrigger: %s', errorMessage);
+end</MCode>
+               </Code>
+               <Description/>
+            </Method>
+         </MethodInfo>
+      </Group>
+      <Group>
+         <Name>waveform</Name>
+         <Description/>
+         <Command/>
+         <Size>1</Size>
+         <Mappings>
+            <ChannelMap Command="Waveform1" Index="1"/>
+         </Mappings>
+         <PropertyInfo/>
+         <MethodInfo>
+            <Method>
+               <Name>GetIQData</Name>
+               <Location>waveform</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function [iqData] = GetIQData(obj, index, length)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+
+%The index + length must be less than the IQRecordLength or will
+%attempt to acquire data outside of buffer size
+rec_len = 0;
+lengthPtr = libpointer('longPtr', rec_len);
+ReturnStatus = calllib('RSA300API', 'GetIQRecordLength', lengthPtr);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:GetIQRecordLength', 'error returned from GetIQRecordLength: %s', errorMessage);
+end
+assert((index + length) &lt;= lengthPtr.Value, 'Input Error: index + length &gt; IQRecordLength');
+
+%Get data
+memLength = zeros(1,length*2);
+%floatLength = single(memLength);
+iqBufferPtr = libpointer('singlePtr', memLength); %float pointer with proper memory allocated
+
+ReturnStatus = calllib('RSA300API', 'GetIQData', iqBufferPtr, index, length);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:GetIQData', 'error returned from GetIQData: %s', errorMessage);
+end
+
+iqData = iqBufferPtr.value; %returns array of IQ Data. The I and Q data alternates. The Q values are not complex. They need to be multiplied by sqrt(-1)
+
+delete(lengthPtr);
+delete(iqBufferPtr);
+
+%example output:
+
+%iqData = Ival, Qval, Ival, Qval</MCode>
+               </Code>
+               <Description/>
+            </Method>
+            <Method>
+               <Name>GetIQDataDeinterleaved</Name>
+               <Location>waveform</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function [iData, qData] = GetIQDataDeinterleaved(obj, index, length)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+% 
+
+%The index + length must be less than the IQRecordLength or will
+%attempt to acquire data outside of buffer size
+rec_len = 0;
+lengthPtr = libpointer('longPtr', rec_len);
+ReturnStatus = calllib('RSA300API', 'GetIQRecordLength', lengthPtr);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:GetIQRecordLength', 'error returned from GetIQRecordLength: %s', errorMessage);
+end
+assert((index + length) &lt;= lengthPtr.Value, 'Input Error: index + length &gt; IQRecordLength'); 
+
+%Get data
+iVal = zeros(1,length);
+qVal = zeros(1,length);
+
+iPtr = libpointer('singlePtr', iVal);
+qPtr = libpointer('singlePtr', qVal);
+
+ReturnStatus = calllib('RSA300API', 'GetIQDataDeinterleaved', iPtr, qPtr, index, length);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:GetIQDataDeinterleaved', 'error returned from GetIQDataDeinterleaved: %s', errorMessage);
+end
+
+iData = iPtr.Value;
+qData = qPtr.Value; %not complex, needs to be multiplied by sqrt(-1)
+
+delete(lengthPtr);
+delete(iPtr);
+delete(qPtr);</MCode>
+               </Code>
+               <Description/>
+            </Method>
+            <Method>
+               <Name>Run</Name>
+               <Location>waveform</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function Run(obj)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+
+ReturnStatus = calllib('RSA300API', 'Run');
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:Run', 'error returned from Run: %s', errorMessage);
+end</MCode>
+               </Code>
+               <Description/>
+            </Method>
+            <Method>
+               <Name>Stop</Name>
+               <Location>waveform</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function Stop(obj)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+
+ReturnStatus = calllib('RSA300API', 'Stop');
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:Stop', 'error returned from Stop: %s', errorMessage);
+end</MCode>
+               </Code>
+               <Description/>
+            </Method>
+            <Method>
+               <Name>WaitForIQDataReady</Name>
+               <Location>waveform</Location>
+               <CapabilityGroup>Base</CapabilityGroup>
+               <Type>MCode</Type>
+               <Code>
+                  <MCode>function [DataReady] = WaitForIQDataReady(obj, timeout)
+% For group functions, OBJ is the group object. For
+% base device functions, OBJ is the device object.
+
+%create parameter pointer
+str = '';
+readyPtr = libpointer('voidPtr', [int8(str) 0]);
+
+%wait for data to be ready
+ReturnStatus = calllib('RSA300API', 'WaitForIQDataReady', timeout, readyPtr);
+if (strcmp(ReturnStatus, 'noError') == 0)
+    errorMessage = calllib('RSA300API', 'GetErrorString', ReturnStatus);
+    error('RSA300API:WaitForIQDataReady', 'error returned from WaitForIQDataReady: %s', errorMessage);
+end
+
+DataReady = readyPtr.Value;
+
+delete(readyPtr);</MCode>
+               </Code>
+               <Description/>
+            </Method>
+         </MethodInfo>
+      </Group>
+   </GroupInfo>
+</MATLABInstrumentDriver>
