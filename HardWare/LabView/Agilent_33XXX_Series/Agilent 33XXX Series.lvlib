@@ -10,35 +10,12 @@
 	<Item Name="Public" Type="Folder">
 		<Property Name="NI.LibItem.Scope" Type="Int">1</Property>
 		<Item Name="Action-Status" Type="Folder">
-			<Item Name="Low Level" Type="Folder">
-				<Item Name="Action-Status_Low Level.mnu" Type="Document" URL="/&lt;instrlib&gt;/Agilent 33XXX Series/Public/Action-Status/Low Level/Action-Status_Low Level.mnu"/>
-				<Item Name="Send Software Trigger.vi" Type="VI" URL="/&lt;instrlib&gt;/Agilent 33XXX Series/Public/Action-Status/Low Level/Send Software Trigger.vi"/>
-			</Item>
-			<Item Name="Action-Status.mnu" Type="Document" URL="/&lt;instrlib&gt;/Agilent 33XXX Series/Public/Action-Status/Action-Status.mnu"/>
-			<Item Name="Clear Arbitrary Waveform.vi" Type="VI" URL="/&lt;instrlib&gt;/Agilent 33XXX Series/Public/Action-Status/Clear Arbitrary Waveform.vi"/>
+			<Item Name="Low Level" Type="Folder"/>
 			<Item Name="Enable Output.vi" Type="VI" URL="../Public/Action-Status/Enable Output.vi"/>
 		</Item>
 		<Item Name="Configure" Type="Folder">
-			<Item Name="Low Level" Type="Folder">
-				<Item Name="Configure_Low Level.mnu" Type="Document" URL="/&lt;instrlib&gt;/Agilent 33XXX Series/Public/Configure/Low Level/Configure_Low Level.mnu"/>
-				<Item Name="Configure Trigger.vi" Type="VI" URL="/&lt;instrlib&gt;/Agilent 33XXX Series/Public/Configure/Low Level/Configure Trigger.vi"/>
-			</Item>
-			<Item Name="Configure.mnu" Type="Document" URL="/&lt;instrlib&gt;/Agilent 33XXX Series/Public/Configure/Configure.mnu"/>
+			<Item Name="Low Level" Type="Folder"/>
 			<Item Name="Configure Arbitrary Waveform.vi" Type="VI" URL="../Public/Configure/Configure Arbitrary Waveform.vi"/>
-			<Item Name="Configure Burst.vi" Type="VI" URL="/&lt;instrlib&gt;/Agilent 33XXX Series/Public/Configure/Configure Burst.vi"/>
-			<Item Name="Configure Duty Cycle.vi" Type="VI" URL="/&lt;instrlib&gt;/Agilent 33XXX Series/Public/Configure/Configure Duty Cycle.vi"/>
-			<Item Name="Configure Frequency Sweep.vi" Type="VI" URL="/&lt;instrlib&gt;/Agilent 33XXX Series/Public/Configure/Configure Frequency Sweep.vi"/>
-			<Item Name="Configure Modulation (Amplitude).vi" Type="VI" URL="/&lt;instrlib&gt;/Agilent 33XXX Series/Public/Configure/Configure Modulation (Amplitude).vi"/>
-			<Item Name="Configure Modulation (Burst).vi" Type="VI" URL="/&lt;instrlib&gt;/Agilent 33XXX Series/Public/Configure/Configure Modulation (Burst).vi"/>
-			<Item Name="Configure Modulation (Frequency).vi" Type="VI" URL="/&lt;instrlib&gt;/Agilent 33XXX Series/Public/Configure/Configure Modulation (Frequency).vi"/>
-			<Item Name="Configure Modulation (Frequency-Shift Keying).vi" Type="VI" URL="/&lt;instrlib&gt;/Agilent 33XXX Series/Public/Configure/Configure Modulation (Frequency-Shift Keying).vi"/>
-			<Item Name="Configure Modulation (Phase).vi" Type="VI" URL="/&lt;instrlib&gt;/Agilent 33XXX Series/Public/Configure/Configure Modulation (Phase).vi"/>
-			<Item Name="Configure Modulation (Pulse Width).vi" Type="VI" URL="/&lt;instrlib&gt;/Agilent 33XXX Series/Public/Configure/Configure Modulation (Pulse Width).vi"/>
-			<Item Name="Configure Modulation.vi" Type="VI" URL="/&lt;instrlib&gt;/Agilent 33XXX Series/Public/Configure/Configure Modulation.vi"/>
-			<Item Name="Configure Output Impedance.vi" Type="VI" URL="/&lt;instrlib&gt;/Agilent 33XXX Series/Public/Configure/Configure Output Impedance.vi"/>
-			<Item Name="Configure Pulse.vi" Type="VI" URL="/&lt;instrlib&gt;/Agilent 33XXX Series/Public/Configure/Configure Pulse.vi"/>
-			<Item Name="Configure Ramp Symmetry.vi" Type="VI" URL="/&lt;instrlib&gt;/Agilent 33XXX Series/Public/Configure/Configure Ramp Symmetry.vi"/>
-			<Item Name="Configure Standard Waveform.vi" Type="VI" URL="/&lt;instrlib&gt;/Agilent 33XXX Series/Public/Configure/Configure Standard Waveform.vi"/>
 			<Item Name="Create Arbitrary Waveform.vi" Type="VI" URL="../Public/Configure/Create Arbitrary Waveform.vi"/>
 		</Item>
 		<Item Name="Utility" Type="Folder">
