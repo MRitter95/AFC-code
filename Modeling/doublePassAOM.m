@@ -54,6 +54,9 @@ ofc= fft(op_t);
 ofc= [ofc(end-N/2:end),ofc(1:N/2+1)];
 ofc= (dt/N)*abs(ofc).^2;
 
+% to simulate ideal heterodyne, sum OFC with LO spectrum;
+% to simulate actual heterodyne, convolute OFC with LO+OFC spectrum.
+
 
 % lspec(2:end-1)= 2*(lspec(2:end-1)); %negative and positive frequencies are indistinguishable 
 % ofc= lspec(1:length(f)); %returns truncated power spectrum (don't need negative frequencies and high frequencies)
