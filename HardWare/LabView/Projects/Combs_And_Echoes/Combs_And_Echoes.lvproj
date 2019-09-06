@@ -10,6 +10,8 @@
 		<Property Name="server.vi.callsEnabled" Type="Bool">true</Property>
 		<Property Name="server.vi.propertiesEnabled" Type="Bool">true</Property>
 		<Property Name="specify.custom.address" Type="Bool">false</Property>
+		<Item Name="getWavelengthDisp.vi" Type="VI" URL="../../../Wavemeter/getWavelengthDisp.vi"/>
+		<Item Name="getWavelengthNoDisp.vi" Type="VI" URL="../../../Wavemeter/getWavelengthNoDisp.vi"/>
 		<Item Name="measureCombs_anySet.vi" Type="VI" URL="../measureCombs_anySet.vi"/>
 		<Item Name="measureEcho.vi" Type="VI" URL="../measureEcho.vi"/>
 		<Item Name="Dependencies" Type="Dependencies">
@@ -18,7 +20,9 @@
 				<Item Name="RSA_API.lvlib" Type="Library" URL="/&lt;userlib&gt;/RSA_API/RSA_API.lvlib"/>
 			</Item>
 			<Item Name="vi.lib" Type="Folder">
+				<Item Name="Beep.vi" Type="VI" URL="/&lt;vilib&gt;/Platform/system.llb/Beep.vi"/>
 				<Item Name="BuildHelpPath.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/BuildHelpPath.vi"/>
+				<Item Name="Check if File or Folder Exists.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/libraryn.llb/Check if File or Folder Exists.vi"/>
 				<Item Name="Check Special Tags.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Check Special Tags.vi"/>
 				<Item Name="Clear Errors.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Clear Errors.vi"/>
 				<Item Name="Close File+.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Close File+.vi"/>
@@ -56,7 +60,9 @@
 				<Item Name="Nearest Freq in Int Cycles.vi" Type="VI" URL="/&lt;vilib&gt;/express/express input/SimulateSignalConfig.llb/Nearest Freq in Int Cycles.vi"/>
 				<Item Name="Nearest Frequency for Block.vi" Type="VI" URL="/&lt;vilib&gt;/express/express input/SimulateSignalConfig.llb/Nearest Frequency for Block.vi"/>
 				<Item Name="NI_AALBase.lvlib" Type="Library" URL="/&lt;vilib&gt;/Analysis/NI_AALBase.lvlib"/>
+				<Item Name="NI_FileType.lvlib" Type="Library" URL="/&lt;vilib&gt;/Utility/lvfile.llb/NI_FileType.lvlib"/>
 				<Item Name="NI_MABase.lvlib" Type="Library" URL="/&lt;vilib&gt;/measure/NI_MABase.lvlib"/>
+				<Item Name="NI_PackedLibraryUtility.lvlib" Type="Library" URL="/&lt;vilib&gt;/Utility/LVLibp/NI_PackedLibraryUtility.lvlib"/>
 				<Item Name="Not Found Dialog.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Not Found Dialog.vi"/>
 				<Item Name="Open File+.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Open File+.vi"/>
 				<Item Name="Read Delimited Spreadsheet (DBL).vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Read Delimited Spreadsheet (DBL).vi"/>
@@ -70,6 +76,7 @@
 				<Item Name="Set String Value.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Set String Value.vi"/>
 				<Item Name="Simple Error Handler.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Simple Error Handler.vi"/>
 				<Item Name="sub2ShouldUseDefSigName.vi" Type="VI" URL="/&lt;vilib&gt;/express/express input/SimulateSignalBlock.llb/sub2ShouldUseDefSigName.vi"/>
+				<Item Name="subFile Dialog.vi" Type="VI" URL="/&lt;vilib&gt;/express/express input/FileDialogBlock.llb/subFile Dialog.vi"/>
 				<Item Name="subGetSignalName.vi" Type="VI" URL="/&lt;vilib&gt;/express/express input/SimulateSignalBlock.llb/subGetSignalName.vi"/>
 				<Item Name="subInternalTiming.vi" Type="VI" URL="/&lt;vilib&gt;/express/express input/SimulateSignalBlock.llb/subInternalTiming.vi"/>
 				<Item Name="subShouldUseDefSigName.vi" Type="VI" URL="/&lt;vilib&gt;/express/express input/SimulateSignalBlock.llb/subShouldUseDefSigName.vi"/>
@@ -96,7 +103,9 @@
 			<Item Name="Agilent 33XXX Series.lvlib" Type="Library" URL="../../../Agilent_33XXX_Series/Agilent 33XXX Series.lvlib"/>
 			<Item Name="Bits to Byte String.vi" Type="VI" URL="../../../AD9959/SubVIs/AD9959_USB.llb/Bits to Byte String.vi"/>
 			<Item Name="ChannelASF.vi" Type="VI" URL="../../../AD9959/SubVIs/ChannelASF.vi"/>
+			<Item Name="CLDevIFace.dll" Type="Document" URL="../../../Wavemeter/x32/CLDevIFace.dll"/>
 			<Item Name="createArray_MR1.vi" Type="VI" URL="../../../RSA306/createArray_MR1.vi"/>
+			<Item Name="DataFileCreator_MR.vi" Type="VI" URL="../../../../../Misc/DataFileCreator_MR.vi"/>
 			<Item Name="DoWrite.vi" Type="VI" URL="../../../AD9959/SubVIs/DoWrite.vi"/>
 			<Item Name="FallTimeInterval.vi" Type="VI" URL="../../../AD9959/SubVIs/FallTimeInterval.vi"/>
 			<Item Name="FreqWord.vi" Type="VI" URL="../../../AD9959/SubVIs/FreqWord.vi"/>
@@ -106,6 +115,7 @@
 			<Item Name="MasterReset.vi" Type="VI" URL="../../../AD9959/SubVIs/MasterReset.vi"/>
 			<Item Name="ProfilePins.vi" Type="VI" URL="../../../AD9959/SubVIs/ProfilePins.vi"/>
 			<Item Name="PulseblasterLabviewLoad_MR1.vi" Type="VI" URL="../../../Pulseblaster_LabVIEW/PulseblasterLabviewLoad_MR1.vi"/>
+			<Item Name="RSA_API.dll" Type="Document" URL="../../../../../../../../../../Tektronix/RSA_API/lib/x86/RSA_API.dll"/>
 			<Item Name="singleShot_AS1.vi" Type="VI" URL="../../../RSA306/singleShot_AS1.vi"/>
 			<Item Name="SPECTRUM Set Settings_AS2.vi" Type="VI" URL="../../../RSA306/SPECTRUM Set Settings_AS2.vi"/>
 			<Item Name="TimeInterval.vi" Type="VI" URL="../../../AD9959/SubVIs/TimeInterval.vi"/>

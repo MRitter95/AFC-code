@@ -7,9 +7,8 @@
 //       16= Cryo Sync Flag, 17= Local Osc. shifter (AOM5), 18= Filter Sweep 2 (AOM6), 19= AD9959 B3CH0 Trigger,
 //       20= AD9959 B3CH1 Trigger, 21=Optical monitor ,22= RF monitor, 23= Unused.
 
-       0b0000 0000 0000 1111 0000 1000, 100 ms 
 
 // Burn Comb 
       
-Start: 0b0010 0010 0000 0000 0000 0010, 750 ms //turn on burn, and also switch for RF to RSA
+Start: 0b0010 0010 0000 0000 0000 0010, 750 ms //turn on burn, and also switch for Optical for RSA
        0b0010 0010 0000 0000 0000 0010, 80 ms, branch, Start

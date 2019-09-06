@@ -1,5 +1,5 @@
-// Burn comb and probe with two AOMS (low frequency sweep follew by high frequency sweep)
-
+// Measure echo using pulse triggered by pulseblaster. Comb is broken up
+// into multiple segments to minize effect of cryo
 // Bits: 0= Memory Pulse (AOM1), 1= Memory Burn (AOM2), 2= High Probe (AOM3a), 3= Low Probe (AOM4), 
 //       4= Tone (AOM3b), 5= Read (AOM2), 6= Function Gen. Trigger, 7= Oscilloscope Trigger, 
 //       8= AD9959 B1CH0 Trigger, 9= AD9959 B1CH1 Trigger, 10= AD9959 B1CH2 Trigger, 11= AD9959 B1CH3 Trigger,

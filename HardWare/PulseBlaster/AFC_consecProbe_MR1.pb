@@ -1,5 +1,5 @@
-// Burn comb and probe with two AOMS (low frequency sweep follew by high frequency sweep).
-// This code sweeps the probe twice measure effect of probe on atoms
+// Burn comb and probe with two AOMS (low frequency sweep followed by high frequency sweep).
+// Comb is split up to match up with quieter cycles of cryo
 
 // Bits: 0= Memory Pulse (AOM1), 1= Memory Burn (AOM2), 2= High Probe (AOM3a), 3= Low Probe (AOM4), 
 //       4= Tone (AOM3b), 5= Read (AOM2), 6= Function Gen. Trigger, 7= Oscilloscope Trigger, 
@@ -16,7 +16,7 @@ Cryo:  0b0100 0000 0000 0000 0000 0000, 1 us, WAIT
 
 Delay: 0b0100 0000 0000 0000 0000 0000, 20 ms
       
-Comb:  0b0100 0000 0000 0000 0000 0010, 220 ms //750 ms //turn on burn, and also RF for RF comb measurement
+Comb:  0b0100 0000 0000 0000 0000 0010, 220 ms //turn on burn, and also RF for RF comb measurement
        
        0b0100 0000 0000 0000 0000 0000, 40 ms
 
@@ -34,7 +34,7 @@ Sweep: 0b0100 0000 0000 0000 1100 0000, 100 ns //Trigger o-scope
        0b0100 0000 0000 0000 0001 0000, 1 ms //Marks start of probe 1
        0b0100 0000 0000 0000 0000 0000, 2 ms
        0b0100 0000 0000 1111 0000 0000, 100 ns
-       0b0100 0000 0000 0000 0000 1000, 62.5 ms //125 ms
+       0b0100 0000 0000 0000 0000 1000, 125 ms
        0b0100 0000 0000 0000 0000 0000, 2 ms
        0b0100 0000 0000 0000 0001 0000, 1 ms //Marks end of probe 1
 
@@ -43,27 +43,8 @@ Sweep: 0b0100 0000 0000 0000 1100 0000, 100 ns //Trigger o-scope
        0b0100 0000 0000 0000 0001 0000, 1 ms //Marks start of probe 2
        0b0100 0000 0000 0000 0000 0000, 2 ms
        0b0100 0000 0000 1111 0000 0000, 100 ns
-       0b0100 0000 0000 0000 0000 0100, 75 ms //150 ms
+       0b0100 0000 0000 0000 0000 0100, 150 ms
        0b0100 0000 0000 0000 0000 0000, 2 ms
        0b0100 0000 0000 0000 0001 0000, 1 ms //Marks end of probe 2
 
-Sweep2:0b0100 0000 0000 0000 0000 0000, 2 ms
-       0b0100 0000 0000 0000 0001 0000, 1 ms //Marks start of probe 1
-       0b0100 0000 0000 0000 0000 0000, 2 ms
-       0b0100 0000 0000 1111 0000 0000, 100 ns
-       0b0100 0000 0000 0000 0000 1000, 62.5 ms //125 ms
-       0b0100 0000 0000 0000 0000 0000, 2 ms
-       0b0100 0000 0000 0000 0001 0000, 1 ms //Marks end of probe 1
-
-       0b0100 0000 0000 0000 0000 0000, 2 ms
-
-       0b0100 0000 0000 0000 0001 0000, 1 ms //Marks start of probe 2
-       0b0100 0000 0000 0000 0000 0000, 2 ms
-       0b0100 0000 0000 1111 0000 0000, 100 ns
-       0b0100 0000 0000 0000 0000 0100, 75 ms //150 ms
-       0b0100 0000 0000 0000 0000 0000, 2 ms
-       0b0100 0000 0000 0000 0001 0000, 1 ms //Marks end of probe 2
-
-       0b0100 0000 0000 0000 0000 0000, 2 ms
-       0b0100 0000 0000 0000 0001 0000, 1 ms
        0b0100 0000 0000 0000 0000 0000, 40 ms, branch, Start
