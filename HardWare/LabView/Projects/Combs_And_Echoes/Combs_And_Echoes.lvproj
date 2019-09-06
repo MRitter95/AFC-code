@@ -106,6 +106,7 @@
 			<Item Name="MasterReset.vi" Type="VI" URL="../../../AD9959/SubVIs/MasterReset.vi"/>
 			<Item Name="ProfilePins.vi" Type="VI" URL="../../../AD9959/SubVIs/ProfilePins.vi"/>
 			<Item Name="PulseblasterLabviewLoad_MR1.vi" Type="VI" URL="../../../Pulseblaster_LabVIEW/PulseblasterLabviewLoad_MR1.vi"/>
+			<Item Name="RSA_API.dll" Type="Document" URL="../../../../../../../../../../Tektronix/RSA_API/lib/x86/RSA_API.dll"/>
 			<Item Name="singleShot_AS1.vi" Type="VI" URL="../../../RSA306/singleShot_AS1.vi"/>
 			<Item Name="SPECTRUM Set Settings_AS2.vi" Type="VI" URL="../../../RSA306/SPECTRUM Set Settings_AS2.vi"/>
 			<Item Name="TimeInterval.vi" Type="VI" URL="../../../AD9959/SubVIs/TimeInterval.vi"/>
