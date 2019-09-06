@@ -5,50 +5,53 @@
 %Takes center freq (F_C), fm deviation (F_D), modulation freq (F_M) (MHz),
 %modulation function (FUNC: choices are sine and triangle wave), time delay
 %between passes (DELAY, ns), and a boolean that decides whether or not to apply
-%the AOM gain function.
+%the AOM gain function. 
 
 %Returns spectrum as well as time series data of modulated signal and
 %modulating signal
 
-function [t,f,rfc,ofc] = doublePassAOM(f_c,f_d,f_m,func)
-
-% beta = w_d/f; %modulation depth
+function [t,rf_t,ao_t,op_t,f,rfc,ofc] = doublePassAOM(f_c,f_d,f_m,func,useAOM)
 
 f_s= 4096*2; %sampling rate
 dt= 1/f_s; %time step
 
-% T=1/f_c; %carrier period
 Tmax= 5000/f_c; %length of signal
 t= 0:dt:Tmax-dt; %time range
 f= -4096.03+1/Tmax:1/Tmax:4096.03-1/Tmax; %frequency range
-size(f)
+
 m= sin(2*pi*f_m*t); %modulating signal (defaults to sine modulation)
 
-if(strcmp(func,'tri')) %note: 'triangle' is a reserved keyword so tri has to be used instead
+if func==1 %note: 'triangle' is a reserved keyword so tri has to be used instead
     disp('triangle time!');
     m= sawtooth(2*pi*f_m*t,1/2);
+else
+    disp('sine');
 end
 
-signal= 0.29*fmmod(m,f_c,f_s,f_d);
-N= length(signal);
-spec= fft(signal); %normalized spectrum
+rf_t= 0.29*fmmod(m,f_c,f_s,f_d);
 
-% lspec= spec(1:N/2+1);
-rfc= [spec(end-N/2:end),spec(1:N/2+1)];
-
-% lspec= (dt/N)*abs(lspec).^2; %power spectrum
+N= length(rf_t);
+rfc= fft(rf_t); %normalized spectrum
+rfc= [rfc(end-N/2:end),rfc(1:N/2+1)];
 rfc= (dt/N)*abs(rfc).^2;
 
+if useAOM==1
+    bw= 25; %aom bandwidth (MHz)
+    f_aom= 110;
+    % for now, we'll say the AOM center freq. = f_c
+    aom= 0.9*exp(-( (f_aom-(f_c+m*f_d))/(2*bw) ).^2);
+    ao_t= rf_t.*aom;
+else
+    ao_t= rf_t;
+end
 % lspec(2:end-1)= 2*(lspec(2:end-1)); %negative and positive frequencies are indistinguishable 
 % rfc= lspec(1:length(f)); %returns truncated power spectrum (don't need negative frequencies and high frequencies)
 
-signal= signal.^2;           % apply signal twice in double pass.
-signal= signal-mean(signal); % result is >0; subtract mean to remove DC.
-spec= fft(signal);
+op_t= ao_t.^2;           % apply signal twice in double pass.
+op_t= op_t-mean(op_t);   % result is >0; subtract mean to remove DC.
 
-ofc= [spec(end-N/2:end),spec(1:N/2+1)];
-
-% lspec= (dt/N)*abs(spec(1:N/2+1)).^2; %power spectrum
+ofc= fft(op_t);
+ofc= [ofc(end-N/2:end),ofc(1:N/2+1)];
 ofc= (dt/N)*abs(ofc).^2;
 
 
@@ -60,10 +63,3 @@ ofc= (dt/N)*abs(ofc).^2;
 % if applyWA==1
 %     f=abs(f);
 % end
-
-if(strcmp(useAOM,1))
-    bw=25; %aom bandwidth
-    f0=100;
-    aom=0.8*exp(-((freq-f0)./(2*bw)).^2); %gaussian bw, max diffraction efficiency 110 MHz, 90%
-    spectrunc=spectrunc.*aom; %convolve AOM bw with spectrum
-end
