@@ -10,6 +10,7 @@
 		<Property Name="server.vi.callsEnabled" Type="Bool">true</Property>
 		<Property Name="server.vi.propertiesEnabled" Type="Bool">true</Property>
 		<Property Name="specify.custom.address" Type="Bool">false</Property>
+		<Item Name="getWavelength_v80_AS2.vi" Type="VI" URL="../../../Wavemeter/getWavelength_v80_AS2.vi"/>
 		<Item Name="measureCombs_anySet.vi" Type="VI" URL="../measureCombs_anySet.vi"/>
 		<Item Name="measureEcho.vi" Type="VI" URL="../measureEcho.vi"/>
 		<Item Name="Dependencies" Type="Dependencies">
@@ -18,6 +19,7 @@
 				<Item Name="RSA_API.lvlib" Type="Library" URL="/&lt;userlib&gt;/RSA_API/RSA_API.lvlib"/>
 			</Item>
 			<Item Name="vi.lib" Type="Folder">
+				<Item Name="Beep.vi" Type="VI" URL="/&lt;vilib&gt;/Platform/system.llb/Beep.vi"/>
 				<Item Name="BuildHelpPath.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/BuildHelpPath.vi"/>
 				<Item Name="Check Special Tags.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Check Special Tags.vi"/>
 				<Item Name="Clear Errors.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Clear Errors.vi"/>
@@ -96,6 +98,7 @@
 			<Item Name="Agilent 33XXX Series.lvlib" Type="Library" URL="../../../Agilent_33XXX_Series/Agilent 33XXX Series.lvlib"/>
 			<Item Name="Bits to Byte String.vi" Type="VI" URL="../../../AD9959/SubVIs/AD9959_USB.llb/Bits to Byte String.vi"/>
 			<Item Name="ChannelASF.vi" Type="VI" URL="../../../AD9959/SubVIs/ChannelASF.vi"/>
+			<Item Name="CLDevIFace.dll" Type="Document" URL="../../../Wavemeter/x32/CLDevIFace.dll"/>
 			<Item Name="createArray_MR1.vi" Type="VI" URL="../../../RSA306/createArray_MR1.vi"/>
 			<Item Name="DoWrite.vi" Type="VI" URL="../../../AD9959/SubVIs/DoWrite.vi"/>
 			<Item Name="FallTimeInterval.vi" Type="VI" URL="../../../AD9959/SubVIs/FallTimeInterval.vi"/>
