@@ -5,7 +5,7 @@
 function [toneTimes] = findTones2(scopeData,verbose)
 
 %add option for user to specify whether to display the plots and timing
-%information or not, MatLab has no default setting so this is the best I
+%information or not, Matlab has no default setting so this is the best I
 %can implement 
 if(nargin<2)
     verbose='false';
