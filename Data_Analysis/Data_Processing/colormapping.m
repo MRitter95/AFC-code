@@ -33,11 +33,8 @@ numfiles=length(afcfiles);
 
 %% Analysis
 
-hold on
+echovals=zeros(200,200); %array to hold all the echoes
 
-echovals=zeros(200,200);
-parrayp=[]; %array to hold the peak heights
-larrayp=[]; %array to hold the peak locations
 %This for loop runs through all the files in the directory and produces
 %combined combs as well as the fourier transform of the comb
 for i=1:numfiles
@@ -49,64 +46,68 @@ for i=1:numfiles
     %visualization and later analysis
     [peaks,locs]=findpeaks(famp, ffreq, 'MinPeakProminence', minprom, ...
         'MinPeakDistance', mindist);
+    %Add all the peaks found to the echo array as well as the extracted
+    %'storage' frequency (1/tstorage)
     if(~isempty(locs))
         for a=1:length(locs)
-            yind=round(10./locs(a));
-            if(yind>200)
-                yind=200;
+            %ignore peaks before 1/20 MHz because our resolution is bad
+            if(locs(a)<0.05) 
+                continue;
             end
-            echovals(i,yind)=peaks(a);
+            xind=round(10./locs(a));%generates stored freq multiplied by 10
+            if(xind>200)
+                xind=200; %fixes out of range issues
+            end
+            echovals(xind,i)=peaks(a);
         end
     end
-    %{
+    
+    %Plotting the combined combs
     figure(1)
     hold on
-    combinedf=avgByNs(combinedf',100);
-    combineda=avgByNs(combineda',100);
+    combinedf=avgByNs(combinedf',100); %reduce the amount of data
+    combineda=avgByNs(combineda',100); %makes plots look smoother
     plot(combinedf, combineda+(i)*step);
-    oldvals=0:15:600;
-    newvals=linspace(0,20,length(oldvals));
-    set(gca,'YTick', oldvals);
-    set(gca,'YTickLabel', newvals);
     xlabel('Frequency (MHz)');
     ylabel('Modulation frequency (MHz)');
-    if(~isempty(locs))
-        if(locs(1)<0.05)
-            locs  = locs(2:end);
-            peaks = peaks(2:end);
-        end
-        if(isempty(locs))
-            parrayp = cat(1,parrayp,0);
-            larrayp = cat(1,larrayp,0);
-        else
-            [m,im] = max(peaks);
-            parrayp = cat(1,parrayp,m);
-            larrayp = cat(1,larrayp,locs(im));
-        end
-    else
-        parrayp=cat(1,parrayp,0);
-        larrayp=cat(1,larrayp,0);
-    end
+    %create y-tick marks that show modulation frequency instead of some
+    %arbitrary amplitude
+    oldvals=0:15:600; 
+    newvals=linspace(0,20,length(oldvals));
+    set(gca,'XLim', [80 320]);
+    set(gca,'YTick', oldvals);
+    set(gca,'YTickLabel', newvals);
+
+    %% Echo plotting with peaks and hyperbolae
     figure(2)
     hold on
     plot(ffreq, famp+(i)*step, locs, peaks+(i)*step, 'x');
-    xlim([0 10]);
-    disp([num2str(i./10) ' MHz']);
     oldvals=0:15:600;
     newvals=linspace(0,20,length(oldvals));
+    set(gca,'XLim', [0 10]);
     set(gca,'YTick', oldvals);
     set(gca,'YTickLabel', newvals);
     xlabel('Time (us)');
     ylabel('Modulation frequency (MHz)');
-    %}
+
+    disp([num2str(i./10) ' MHz']);
 end
+
+
 %Produce the theoretical curves for where the peaks should be (1/f curves
 %since we are essentially seeing an echo here)
 
-%{
 fs=linspace(startfreq,endfreq,numfiles);
 heights=step:step:step*numfiles;
 for i=1:0.5:10
     plot(i./fs,heights,1./(i*fs),heights)
 end
-%}
+
+%Build color map of where the echoes occur in frequency space
+%Look at cumulative stored power by summing over the array rows
+echovals=echovals/max(echovals,[],'all');
+figure(3)
+imagesc(echovals)
+set(gca,'YDir','normal')
+figure(4)
+plot(sum(echovals))
