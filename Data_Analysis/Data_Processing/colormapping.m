@@ -1,9 +1,24 @@
+%This function generates a colormap plot of the echoes. The intensity/
+%brightness on the colormap indicates the relative efficiency of storage at
+%that frequency. The code expects a configuration file containing the peak
+%finding parameters (prominence and min distance) and the experimental
+%parameters (start and stop frequency, sweeprate etc.). If no path is
+%specified, the code will use the current directory to find all the files
+%(currently the config file is one folder up)
+function [echovals] = colormapping(config, userpath)
+
 %% User input
 
 %Parameters for specific run
-%TO DO: implement these in a simple config.txt file saved in the data
-%folder
-configfile = 'E:\data_2019_09_18\2019-08-18config.txt';
+if(nargin<1)
+    error('Please provide a configuration file with the experimental parameters')
+end
+if(nargin<2)
+    userpath= pwd;
+    disp(['No directory provided, using current directory: ' pwd])
+end
+cd(userpath)
+configfile = config;
 fileID     = fopen(configfile);
 if(fileID == -1)
     error('unable to open file');
