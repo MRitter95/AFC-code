@@ -3,14 +3,13 @@
 %first for zero delay, then for specified delay.
 
 %Takes center freq (F_C), fm deviation (F_D), modulation freq (F_M) (MHz),
-%modulation function (FUNC: choices are sine and triangle wave), time delay
-%between passes (DELAY, ns), and a boolean that decides whether or not to apply
-%the AOM gain function. 
+%modulation function (FUNC: choices are sine and triangle wave), and a 
+%boolean that decides whether or not to apply the AOM gain function. 
 
 %Returns spectrum as well as time series data of modulated signal and
 %modulating signal
 
-function [t,rf_t,ao_t,op_t,f,rfc,ofc] = doublePassAOM(f_c,f_d,f_m,func,useAOM)
+function [t,rf_t_pass1,LO_arm1,aom_pass1,ao_t_pass1,op_t,m_pass1,f,rfc,ofc] = doublePassAOM(f_c,f_d,f_m,func,applyAOMgain)
 
 f_s= 4096*2; %sampling rate
 dt= 1/f_s; %time step
@@ -19,50 +18,80 @@ Tmax= 5000/f_c; %length of signal
 t= 0:dt:Tmax-dt; %time range
 f= -4096.03+1/Tmax:1/Tmax:4096.03-1/Tmax; %frequency range
 
-m= sin(2*pi*f_m*t); %modulating signal (defaults to sine modulation)
+passDelay= 0.0027;
+m_pass1= sin(2*pi*f_m*t); %modulating signal (defaults to sine modulation)
+m_pass2= sin(2*pi*f_m*(t + passDelay)); %2.7ns delay between passes
+
+% homodyne output arm lengths are mismatched about 4in.
+armDelay= 0.0003;
+m_pass1_arm2= sin(2*pi*f_m*(t + armDelay));
+m_pass2_arm2= sin(2*pi*f_m*(t + armDelay + passDelay));
 
 if func==1 %note: 'triangle' is a reserved keyword so tri has to be used instead
     disp('triangle time!');
-    m= sawtooth(2*pi*f_m*t,1/2);
+    m_pass1= sawtooth(2*pi*f_m*t,1/2);
+    m_pass2= sawtooth(2*pi*f_m*(t+passDelay),1/2);
+    m_pass1_arm2= sawtooth(2*pi*f_m*(t+armDelay),1/2);
+    m_pass2_arm2= sawtooth(2*pi*f_m*(t+armDelay+passDelay),1/2);
 else
     disp('sine');
 end
 
-rf_t= 0.29*fmmod(m,f_c,f_s,f_d);
+rf_t_pass1= fmmod(m_pass1,f_c,f_s,f_d);
+rf_t_pass2= fmmod(m_pass2,f_c,f_s,f_d);
+rf_t_pass1_arm2= fmmod(m_pass1_arm2,f_c,f_s,f_d);
+rf_t_pass2_arm2= fmmod(m_pass2_arm2,f_c,f_s,f_d);
 
-N= length(rf_t);
-rfc= fft(rf_t); %normalized spectrum
+LO_arm1= sqrt(190)*sin(2*pi*(f_c-3)*t);
+LO_arm2= sqrt(190)*sin(2*pi*(f_c-3)*(t+armDelay));
+% LO_2= sin(2*pi*(f_c+2)*t);
+
+N= length(rf_t_pass1);
+rfc= fft(rf_t_pass1); %normalized spectrum
 rfc= [rfc(end-N/2:end),rfc(1:N/2+1)];
 rfc= (dt/N)*abs(rfc).^2;
 
-if useAOM==1
+if applyAOMgain==1
     bw= 25; %aom bandwidth (MHz)
+    amp= 0.9;
     f_aom= 110;
-    % for now, we'll say the AOM center freq. = f_c
-    aom= 0.9*exp(-( (f_aom-(f_c+m*f_d))/(2*bw) ).^2);
-    ao_t= rf_t.*aom;
+    
+    % map the AOM frequency bandwidth onto time
+    aom_pass1= amp*exp(-( (f_aom-(f_c+m_pass1*f_d))/(2*bw) ).^2);
+    aom_pass2= amp*exp(-( (f_aom-(f_c+m_pass2*f_d))/(2*bw) ).^2);
+    aom_pass1_arm2= amp*exp(-( (f_aom-(f_c+m_pass1_arm2*f_d))/(2*bw) ).^2);
+    aom_pass2_arm2= amp*exp(-( (f_aom-(f_c+m_pass2_arm2*f_d))/(2*bw) ).^2);
+    
+    ao_t_pass1= rf_t_pass1.*aom_pass1;
+    ao_t_pass2= rf_t_pass2.*aom_pass2;
+    ao_t_pass1_arm2= rf_t_pass1_arm2.*aom_pass1_arm2;
+    ao_t_pass2_arm2= rf_t_pass2_arm2.*aom_pass2_arm2;
+    
 else
-    ao_t= rf_t;
+    ao_t_pass1= rf_t_pass1;
+    ao_t_pass2= rf_t_pass2;
+    ao_t_pass1_arm2= rf_t_pass1_arm2;
+    ao_t_pass2_arm2= rf_t_pass2_arm2;
+    
 end
-% lspec(2:end-1)= 2*(lspec(2:end-1)); %negative and positive frequencies are indistinguishable 
-% rfc= lspec(1:length(f)); %returns truncated power spectrum (don't need negative frequencies and high frequencies)
 
-op_t= ao_t.^2;           % apply signal twice in double pass.
-op_t= op_t-mean(op_t);   % result is >0; subtract mean to remove DC.
+ao_t_arm1= sqrt(10)*ao_t_pass1.*ao_t_pass2;
+ao_t_arm2= sqrt(10)*ao_t_pass1_arm2.*ao_t_pass2_arm2;
+
+ao_t_arm1= sqrt(10)*ao_t_arm1-mean(ao_t_arm1);
+ao_t_arm2= sqrt(10)*ao_t_arm2-mean(ao_t_arm2);
+
+reflectance= 0.5;
+det1= (sqrt(reflectance)*ao_t_arm1 + sqrt(1-reflectance)*LO_arm1).^2;
+det2= (sqrt(1-reflectance)*ao_t_arm2 - sqrt(reflectance)*LO_arm2).^2;
+
+% det1= (LO_2 + LO_t).^2;           % homodyne single freq.
+% det2= (LO_2 - LO_t).^2;
+
+op_t= det1-det2;
+% op_t= op_t-mean(op_t);   % result is >0; subtract mean to remove DC.
+
 
 ofc= fft(op_t);
 ofc= [ofc(end-N/2:end),ofc(1:N/2+1)];
 ofc= (dt/N)*abs(ofc).^2;
-
-% to simulate ideal heterodyne, sum OFC with LO spectrum;
-% to simulate actual heterodyne, convolute OFC with LO+OFC spectrum.
-
-
-% lspec(2:end-1)= 2*(lspec(2:end-1)); %negative and positive frequencies are indistinguishable 
-% ofc= lspec(1:length(f)); %returns truncated power spectrum (don't need negative frequencies and high frequencies)
-
-% f= f-100;
-
-% if applyWA==1
-%     f=abs(f);
-% end
