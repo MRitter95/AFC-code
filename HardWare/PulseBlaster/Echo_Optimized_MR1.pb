@@ -4,7 +4,7 @@
 //       4= Tone (AOM3b), 5= Read (AOM2), 6= Function Gen. Trigger, 7= Oscilloscope Trigger, 
 //       8= AD9959 B1CH0 Trigger, 9= AD9959 B1CH1 Trigger, 10= AD9959 B1CH2 Trigger, 11= AD9959 B1CH3 Trigger,
 //       12= Filter Burn1 (AOM5), 13= Filter Burn2 (AOM6), 14= FPGA Starts, 15= FPGA Counts,
-//       16= Cryo Sync Flag, 17= Local Osc. shifter (AOM5), 18= Filter Sweep 2 (AOM6), 19= AD9959 B3CH0 Trigger,
+//       16= Shutter, 17= Local Osc. shifter (AOM5), 18= Filter Sweep 2 (AOM6), 19= AD9959 B3CH0 Trigger,
 //       20= AD9959 B3CH1 Trigger, 21=Optical monitor ,22= RF monitor, 23= Unused.
 
        0b0100 0000 0000 1111 0000 1000, 100 ms 
@@ -15,22 +15,17 @@ Cryo:  0b0100 0000 0000 0000 0000 0000, 1 us, WAIT
 
 Delay: 0b0100 0000 0000 0000 0000 0000, 20 ms
       
-Comb:  0b0100 0010 0000 0000 0000 0010, 220 ms //750 ms //turn on burn, and also RF for RF comb measurement
-       
+Comb:  0b0100 0000 0000 0000 0000 0010, 220 ms //750 ms //turn on burn
        0b0100 0000 0000 0000 0000 0000, 40 ms
 
 Comb2: 0b0100 0000 0000 0000 0000 0010, 95 ms
 
        0b0100 0000 0000 0000 0000 0000, 105 ms
 
-Sweep: 0b0100 0000 0000 0000 0000 0000, 100 ns //Trigger o-scope
-
        0b0100 0000 0000 0000 0000 0010, 105 ms //last part of burn
 
-       0b0100 0000 0000 0000 0000 0000, 20 ms
+       0b0100 0001 0000 0000 0000 0000, 20 ms
 
-Pulse: 0b0100 0000 0000 0000 1100 0000, 100 ns 
-       0b0100 0000 0000 0000 0000 0001, 1 us //Echo pulse
-       0b0100 0000 0000 0000 0000 0000, 100 ms, branch, Start
-
-       0b0100 0000 0000 0000 0000 0000, 40 ms, branch, Start
+Pulse: 0b0100 0001 0000 0000 1100 0000, 100 ns //Trigger o-scope 
+       0b0100 0001 0000 0000 0000 0001, 30 us //Echo pulse
+       0b0100 0001 0000 0000 0000 0000, 240 ms, branch, Start
