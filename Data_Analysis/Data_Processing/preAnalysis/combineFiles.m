@@ -3,25 +3,20 @@
 %in the parent directory for further processing. It will process each
 %directory (i.e. modulation frequency) in parallel (max is 4 I think).
 
-function [] = combineFiles()
-%{
-if(nargin<1)
-    userpath=pwd;
-    disp(['No directory provided, using current directory: ' pwd])
-end
-cd (userpath)
-[~, date] = fileparts(userpath);
-disp(['Processing data from: ' date])
-%}
-disp(['Using the current directory: ' pwd ])
-pathOK=input('Is that ok (Y/N)?','s');
-if(strcmp(pathOK,'Y'))
-    userpath=pwd;
-else
-    userpath=input('Please enter the desired directory','s');
-end
+function [] = combineFiles(exptype, userpath)
 
-exptype=input('afc or echo data?','s');
+if(nargin<1)
+    disp(['Using the current directory: ' pwd ])
+    pathOK=input('Is that ok (Y/N)?','s');
+    if(strcmp(pathOK,'Y'))
+        userpath=pwd;
+    else
+        userpath=input('Please enter the desired directory','s');
+    end
+    exptype=input('afc or echo data?','s');
+end
+disp(['Processing data from: ' userpath])
+cd (userpath)
 
 %% Getting all the folder names from the directory
 files=dir; %lists all the file and folder names
