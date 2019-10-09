@@ -5,7 +5,7 @@
 %parameters (start and stop frequency, sweeprate etc.). If no path is
 %specified, the code will use the current directory to find all the files
 %(currently the config file is one folder up)
-function [echovals] = colormapping(config, userpath)
+function [echovals,timevals] = colormappingEcho(config, userpath)
 
 %% User input
 
@@ -29,44 +29,59 @@ vals   = config{2};
 step=vals(1); %vertical spacing between consecutive traces
 minprom=vals(2); %minimum prominence of a peak
 mindist=vals(3); %minimum distance between peaks
-startfreq=vals(4); %start frequency for comb
-endfreq=vals(5); %end frequency for comb
-sweep1=[vals(6) vals(7)]; %freq range of first sweep
-sweep2=[vals(8) vals(9)]; %freq range for second seep
-sweepspeed=vals(10); %sweep speed in MHz/s
+stepp=vals(4); %vertical spacing between consecutive traces
+minpromp=vals(5); %minimum prominence of a peak
+mindistp=vals(6); %minimum distance between peaks
+startfreq=vals(7); %start frequency for comb
+endfreq=vals(8); %end frequency for comb
 
 %% Filenames
 
 % Get file names for the afc and probe data and sort them correctly 
-afcfiles=dir('afc*.bin');
-[~,idx]=sort_nat({afcfiles.name});
-afcfiles=afcfiles(idx);
+echofiles=dir('afc*.bin');
+[~,idx]=sort_nat({echofiles.name});
+echofiles=echofiles(idx);
 probefiles=dir('probe*.bin');
 [~,idx]=sort_nat({probefiles.name});
 probefiles=probefiles(idx);
-numfiles=length(afcfiles);
+numfiles=length(echofiles);
 
 %% Analysis
 
 echovals=zeros(200,200); %array to hold all the echoes
+timevals=zeros(numfiles);
 
 %This for loop runs through all the files in the directory and produces
 %combined combs as well as the fourier transform of the comb
 for i=1:numfiles
     %get the fourier transformed data (first two variables) and the
     %combined comb data for plotting
-    [ffreq, famp, combinedf, combineda]=combAnalysisDouble( ...
-        afcfiles(i).name, probefiles(i).name, sweep1, sweep2, sweepspeed);
-    %Get the peaks and locations of peaks in the fourier transform data for
+    echo=readbin(echofiles(i).name(),'true');
+    time=avgByNs(echo.x*1E6,100);
+    amp=avgByNs(echo.y,100);
+    
+    probe=readbin(probefiles(i).name(),'true');
+    timep=avgByNs(probe.x*1E6,100);
+    ampp=avgByNs(probe.y,100);
+    [peaksp,locsp]=findpeaks(ampp, timep, 'MinPeakProminence', minpromp, ...
+        'MinPeakDistance', mindistp);
+    
+    time  = time-locsp(1);
+    timep = timep-locsp(1);
+    locsp = locsp-locsp(1);
+    %Get the peaks and locations of peaks in the echo data for
     %visualization and later analysis
-    [peaks,locs]=findpeaks(famp, ffreq, 'MinPeakProminence', minprom, ...
+    [peaks,locs]=findpeaks(amp, time, 'MinPeakProminence', minprom, ...
         'MinPeakDistance', mindist);
+    
     %Add all the peaks found to the echo array as well as the extracted
     %'storage' frequency (1/tstorage)
     if(~isempty(locs))
+        count=0;
         for a=1:length(locs)
             %ignore peaks before 1/20 MHz because our resolution is bad
-            if(locs(a)<0.05) 
+            if(locs(a)<0.07)
+                count=count+1;
                 continue;
             end
             xind=round(10./locs(a));%generates stored freq multiplied by 10
@@ -75,29 +90,26 @@ for i=1:numfiles
             end
             echovals(xind,i)=peaks(a);
         end
+        [~,im]=max(peaks(count:end));
+        timevals(i)=locs(im);
     end
-    
-    %Plotting the combined combs
-    figure(1)
-    hold on
-    combinedf=avgByNs(combinedf',100); %reduce the amount of data
-    combineda=avgByNs(combineda',100); %makes plots look smoother
-    plot(combinedf, combineda+(i)*step);
-    xlabel('Frequency (MHz)');
-    ylabel('Modulation frequency (MHz)');
-    %create y-tick marks that show modulation frequency instead of some
-    %arbitrary amplitude
-    oldvals=0:15:600; 
-    newvals=linspace(0,20,length(oldvals));
-    set(gca,'XLim', [80 320]);
-    set(gca,'YTick', oldvals);
-    set(gca,'YTickLabel', newvals);
 
     %% Echo plotting with peaks and hyperbolae
-    figure(2)
+    figure(111)
     hold on
-    plot(ffreq, famp+(i)*step, locs, peaks+(i)*step, 'x');
-    oldvals=0:15:600;
+    plot(timep, ampp+(i)*stepp, locsp, peaksp+(i)*stepp, 'x');
+    oldvals=0:stepp*numfiles/40.:stepp*numfiles;
+    newvals=linspace(0,20,length(oldvals));
+    set(gca,'XLim', [0 10]);
+    set(gca,'YTick', oldvals);
+    set(gca,'YTickLabel', newvals);
+    xlabel('Time (us)');
+    ylabel('Modulation frequency (MHz)');
+    
+    figure(112)
+    hold on
+    plot(time, amp+(i)*step, locs, peaks+(i)*step, 'x');
+    oldvals=0:step*numfiles/40.:step*numfiles;
     newvals=linspace(0,20,length(oldvals));
     set(gca,'XLim', [0 10]);
     set(gca,'YTick', oldvals);
@@ -121,8 +133,25 @@ end
 %Build color map of where the echoes occur in frequency space
 %Look at cumulative stored power by summing over the array rows
 echovals=echovals/max(echovals,[],'all');
-figure(3)
+figure
 imagesc(echovals)
 set(gca,'YDir','normal')
-figure(4)
-plot(sum(echovals))
+oldvals=0:20:200;
+newvals=linspace(0,20,length(oldvals));
+set(gca,'XTick', oldvals);
+set(gca,'XTickLabel', newvals);
+set(gca,'YTick', oldvals);
+set(gca,'YTickLabel', newvals);
+xlabel('Modulation frequency (MHz)');
+ylabel('Storage frequency (MHz)');
+title('Stored frequency vs programmed frequency')
+
+figure
+freq=startfreq:0.1:endfreq; %creates a frequency array spanning the modulating frequencies
+time=1./freq;
+for i=1:10
+    plot(log(time),log(i*time),log(time),log(time/i))
+end
+plot(log(time),log(timevals),'x')
+xlabel('Programmed storage time (log(us))');
+ylabel('Storage time (log(us))');

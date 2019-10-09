@@ -5,7 +5,7 @@
 %parameters (start and stop frequency, sweeprate etc.). If no path is
 %specified, the code will use the current directory to find all the files
 %(currently the config file is one folder up)
-function [echovals] = colormapping(config, userpath)
+function [echovals] = colormappingAFC(config, userpath)
 
 %% User input
 
@@ -78,7 +78,7 @@ for i=1:numfiles
     end
     
     %Plotting the combined combs
-    figure(1)
+    figure(11)
     hold on
     combinedf=avgByNs(combinedf',100); %reduce the amount of data
     combineda=avgByNs(combineda',100); %makes plots look smoother
@@ -94,7 +94,7 @@ for i=1:numfiles
     set(gca,'YTickLabel', newvals);
 
     %% Echo plotting with peaks and hyperbolae
-    figure(2)
+    figure(12)
     hold on
     plot(ffreq, famp+(i)*step, locs, peaks+(i)*step, 'x');
     oldvals=0:15:600;
@@ -121,7 +121,7 @@ end
 %Build color map of where the echoes occur in frequency space
 %Look at cumulative stored power by summing over the array rows
 echovals=echovals/max(echovals,[],'all');
-figure(3)
+figure
 imagesc(echovals)
 set(gca,'YDir','normal')
 figure(4)
