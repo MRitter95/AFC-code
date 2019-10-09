@@ -9,8 +9,8 @@ import shutil
 
 #os.rename("C:/Users/Lab/Desktop/blah/blah20.txt","C:/Users/Lab/Desktop/blah/blahblah/blah20.txt")
 
-source= input("Where are the files now? Use forward slashes: ")
-target= input("Where are they going? Target folders will be identified by date modified. If these have been scrambled, then first run RESETDATEMODIFIED.PY.")
+source= input("Where are the files now? ")
+target= input("Where are they going? Target folders will be identified by date modified. If these have been scrambled, then first run RESETDATEMODIFIED.PY. ")
 
 ###############################################################################
 # find the already-created folders in the target location. Each of these
