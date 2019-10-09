@@ -5,17 +5,30 @@ files=files(~ismember({files.name},{'.','..'})); %removes the 'current' and 'par
 dirFlags=[files.isdir]; %flags each entry as a folder (boolean)
 folders=files(dirFlags); %only store the folders
 
-data=cell(3,length(folders));
+[~,idx]=sort_nat({folders.name});
+folders=folders(idx);
+diff=cell(1, length(folders));
+net=cell(1, length(folders));
+var=cell(1, length(folders));
+
+topdir=pwd;
+
+parfor k=1:length(folders)
+    currentdir=folders(k).name;
+    disp(['Current data folder: ' currentdir])
+    filepath=fullfile(topdir, currentdir, 'C1*.trc');
+    afcs=dir(filepath);
+    for i=1:length(afcs)
+        afcs(i).name=fullfile(topdir, currentdir, afcs(i).name);
+    end
     
-for k=1:length(folders)
-    figure(1)
-    hold on
-    cd(folders(k).name)
-    disp(['Current data folder: ' folders(k).name])
-    afcs=dir('C1*.trc');
+    tempdiff=zeros(1, length(afcs));
+    tempnet=zeros(1, length(afcs));
+    tempvar=zeros(1, length(afcs));
     
-    [data{1,k}, data{2,k}, data{3,k}]=takeDiff(afcs);
-    plot(data{1,k})
-    cd ..
+    [tempdiff, tempnet, tempvar]=takeDiff(afcs);
+    diff{k}=tempdiff;
+    net{k}=tempnet;
+    var{k}=tempvar;
 end
 
