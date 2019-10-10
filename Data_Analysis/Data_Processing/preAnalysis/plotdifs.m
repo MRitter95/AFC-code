@@ -1,5 +1,3 @@
-
-
 files=dir; %lists all the file and folder names
 files=files(~ismember({files.name},{'.','..'})); %removes the 'current' and 'parent' directory folders
 dirFlags=[files.isdir]; %flags each entry as a folder (boolean)
@@ -7,9 +5,9 @@ folders=files(dirFlags); %only store the folders
 
 [~,idx]=sort_nat({folders.name});
 folders=folders(idx);
-diff=cell(1, length(folders));
-net=cell(1, length(folders));
-var=cell(1, length(folders));
+difference=cell(1, length(folders));
+netval=cell(1, length(folders));
+variance=cell(1, length(folders));
 
 topdir=pwd;
 
@@ -27,8 +25,7 @@ parfor k=1:length(folders)
     tempvar=zeros(1, length(afcs));
     
     [tempdiff, tempnet, tempvar]=takeDiff(afcs);
-    diff{k}=tempdiff;
-    net{k}=tempnet;
-    var{k}=tempvar;
+    difference{k}=tempdiff;
+    netval{k}=tempnet;
+    variance{k}=tempvar;
 end
-
