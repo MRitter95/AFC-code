@@ -55,7 +55,7 @@ folders.sort(key=os.path.getmtime)
 print(*folders,sep='\n')
 proceed= input('This is the folder ordering that will be used. OK? (Y/N)')
 if(proceed=='Y'):
-    print('Proceeding with file transfer:')
+    print('OK. Checking folder count...')
 else:
     print('Transfer aborted. See RESETDATEMODIFIED.PY to reorder folders.')
     sys.exit(0)
@@ -88,9 +88,16 @@ print(ends)
 # a little safety measure: if the number of blocks of saved scope traces is not
 # equal to the number of folders, there's a problem...
 if len(folders)!= len(ends):
-    print("ERROR! NO FILES MOVED: NUMBER OF FOLDERS",len(folders),"DOES NOT MATCH NUMBER OF DATA SETS",len(ends),"!")
+    print('\nERROR! Number of folders',len(folders),'does not match number of data sets',len(ends),'!')
+    print('1. If they are slightly off, check that extra traces were not inexplicably saved at start of measurement. This has happened before...')
+    print('2. If they are totally off, check the threshold for distinguishing between consecutive data sets.')
+    print('   The program is currently using a',threshold,'-second threshold.')
+    print('   Setting it to equal the number of saved OFC traces per setting should work well.')
+    print('\nNo changes made, no sweat.\n')
     sys.exit(0)
-
+else:
+    print(len(ends),'data sets found for',len(folders),'folders. Proceeding with transfer:')
+    
 ###############################################################################
 # transfer blocks of files saved at the same time, ordered by date modified,
 # into folders, also ordered by date modified.
@@ -98,6 +105,7 @@ if len(folders)!= len(ends):
 for j in range(len(ends)):
 #    subTarget= target+"/"+folders[j]
     #os.mkdir(subTarget)
+    print('Now transferring set ',j+1,' of ',len(ends))
     if j==0:
         start= 0
     else:
@@ -106,5 +114,10 @@ for j in range(len(ends)):
 #        os.rename(os.path.join(os.getcwd(),files[k]),os.path.join(subTarget,files[k]))
         
         shutil.copy2(os.path.join(os.getcwd(),files[k]),os.path.join(folders[j],files[k]))
+
+###############################################################################
+# we often want to delete the files after the transfer, so change directories
+# before exiting to make life easier.
+os.chdir('C:/')
 ###############################################################################
 # THE END
