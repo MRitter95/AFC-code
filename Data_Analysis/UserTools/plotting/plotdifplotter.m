@@ -2,10 +2,15 @@
 %the workspace to be saved from the result of the computation (this could
 %probably be improved but it's how it works for now)
 
-%date= '10 Oct;';
-
+disp(['Using the current directory: ' pwd ]);
+pathOK=input('Is that ok (Y/N)?','s');
+if(strcmp(pathOK,'Y'))
+    userpath=pwd;
+else
+    userpath=input('Please enter the desired directory','s');
+end
+load('plotdiff_output.mat')
 for i=1:20 %Go through 20 frequencies
-    
     for j=1:10 %Show slices of 1MHz at a time
         %depending on data, might want to skip first or last entry
         figure(2*i)
