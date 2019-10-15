@@ -50,6 +50,8 @@ parfor k=1:length(folders)
     
     for i=1:length(ofcdat)
         ofcdat(i).name=fullfile(userpath, datafolder, ofcdat(i).name);
+    end
+    for i=1:length(rfcdat)
         rfcdat(i).name=fullfile(userpath, datafolder, rfcdat(i).name);
     end
     for i=1:length(odatC1)
