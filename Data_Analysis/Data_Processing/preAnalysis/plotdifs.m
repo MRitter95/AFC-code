@@ -1,6 +1,19 @@
 %This script calculates the difference between consecutive traces for all
 %frequencies in an experiment and stores the results in three cells that
 %can be plotted with the plotdifplotter script if saved. 
+function [] = plotdifs(userpath, expdate)
+if(nargin<1)
+    disp(['Using the current directory: ' pwd ])
+    pathOK=input('Is that ok (Y/N)?','s');
+    if(strcmp(pathOK,'Y'))
+        userpath=pwd;
+    else
+        userpath=input('Please enter the desired directory','s');
+    end
+    expdate=input('Date of experiment: ','s');
+end
+disp(['Processing data from: ' userpath])
+cd (userpath)
 
 %% Get list of folders and sort them
 files    = dir; %lists all the file and folder names
@@ -45,4 +58,9 @@ parfor k=1:length(folders) %loop over all the folders in the directory
     difflast{k}   = tempdifflast;
     netval{k}     = tempnet;
     variance{k}   = tempvar;
+end
+
+outfile='plotdiff_output.mat';
+save(outfile, 'difference', 'difflast', 'netval', 'variance', 'expdate', 'folders');
+
 end

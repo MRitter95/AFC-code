@@ -15,7 +15,7 @@ for i=1:20 %Go through 20 frequencies
         hold on
         plot(log10(difflast{j+(i-1)*10}(1:end-1))) 
     end
-    title(sprintf(strcat(date,' Starting at %.1f MHz going to %.1f MHz'),(i-1)+0.1,i))
+    title(sprintf(strcat(expdate,' Starting at %.1f MHz going to %.1f MHz'),(i-1)+0.1,i))
     axis([-inf,inf,-inf,inf])
     legend({folders(1+10*(i-1):10+10*(i-1)).name})
 end

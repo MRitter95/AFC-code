@@ -23,7 +23,7 @@ xoff  = 0; %x offset
 ygain = 1; %y gain
 yoff  = 0; %y offset
 
-disp(['Starting averaging, extension detected as: ' ext])
+%disp(['Starting averaging, extension detected as: ' ext])
 
 for k=1:numfiles
     %disp(data(k).name) %display current filename
