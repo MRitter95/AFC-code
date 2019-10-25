@@ -14,8 +14,6 @@ target= input("Where are they going? Target folders will be identified by date m
 
 ###############################################################################
 # find the already-created folders in the target location. Each of these
-
-
 # subfolders corresponds to a modulation freq. and we'll send each AFC file
 # to its respective subfolder.
 #os.chdir(target)
