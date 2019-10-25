@@ -73,9 +73,6 @@ parfor k=1:length(folders)
             datafiles{i,2}=[xaxis;yaxis]; %store data in corresponding cell
         end
     end
-    if(length(xaxis)==1)
-        continue;
-    end
     %cd .. %move up a directory to store files
     tooth=str2double(datafolder)/1e+6; %extract the tooth spacing for filenaming
     types={'ofc','rfc',exptype,'probe'};
@@ -83,6 +80,11 @@ parfor k=1:length(folders)
     %Store a .txt file for each dataset
     for i=1:4
         filename=[types{i} num2str(tooth,'%0.1f') 'MHz.bin']; %creates filenames
+        arrsize=size(datafiles{i,2});
+        if(arrsize(2)==1){
+            disp('No data saved, continuing');
+            continue;
+        end
         disp(['Saving: ' filename])
         fileID(i)=fopen(filename,'W'); %open file to write ('W' is faster apparently than'w')
         if(i<3)
