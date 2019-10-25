@@ -59,7 +59,8 @@ for i=1:numfiles
         afcfiles(i).name, probefiles(i).name, sweep1, sweep2, sweepspeed);
     %Get the peaks and locations of peaks in the fourier transform data for
     %visualization and later analysis
-    [peaks,locs]=findpeaks(famp, ffreq, 'MinPeakProminence', minprom, ...
+    
+    [peaks,locs]=findpeaks(famp, ffreq, 'MinPeakProminence',minprom, ...
         'MinPeakDistance', mindist);
     %Add all the peaks found to the echo array as well as the extracted
     %'storage' frequency (1/tstorage)
@@ -73,6 +74,7 @@ for i=1:numfiles
             if(xind>200)
                 xind=200; %fixes out of range issues
             end
+            disp(a)
             echovals(xind,i)=peaks(a);
         end
     end
@@ -87,7 +89,7 @@ for i=1:numfiles
     ylabel('Modulation frequency (MHz)');
     %create y-tick marks that show modulation frequency instead of some
     %arbitrary amplitude
-    oldvals=0:15:600; 
+    oldvals=0:step*numfiles/40:step*numfiles; 
     newvals=linspace(0,20,length(oldvals));
     set(gca,'XLim', [80 320]);
     set(gca,'YTick', oldvals);
@@ -97,7 +99,7 @@ for i=1:numfiles
     figure(12)
     hold on
     plot(ffreq, famp+(i)*step, locs, peaks+(i)*step, 'x');
-    oldvals=0:15:600;
+    oldvals=0:step*numfiles/40:step*numfiles;
     newvals=linspace(0,20,length(oldvals));
     set(gca,'XLim', [0 10]);
     set(gca,'YTick', oldvals);

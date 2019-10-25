@@ -44,6 +44,10 @@ p2end      = tones(5)-round(backoffset/deltaT);
 
 amp1       = amps(p1start:p1end); %low freq sweep
 amp2       = amps(p2start:p2end); %high freq sweep
+probe1     = probe.y(p1start:p1end);
+probe2     = probe.y(p2start:p2end);
+probe1     = probe1/max([probe1' probe2']);
+probe2     = probe2/max([probe1' probe2']);
 pulse1     = [ptime(p1start),ptime(p1end)];
 pulse2     = [ptime(p2start),ptime(p2end)];
 
@@ -53,7 +57,7 @@ freqaxisp2 = sweepspeed*2*(ptime(p2start:p2end)-pulse2(1))+2*f1b;
 
 %Combine the high/ low frequency combs into a single comb (just adding them
 %together at the moment
-[freqT,ampT] = combineCombs(freqaxisp1,amp1,freqaxisp2,amp2);
+[freqT,ampT] = combineCombs(freqaxisp1,amp1,freqaxisp2,amp2, probe1, probe2);
 %ampT         = ampT/max(ampT);
 ampT         = ampT-mean(ampT);
 df           = freqT(2)-freqT(1);
