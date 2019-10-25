@@ -81,7 +81,7 @@ parfor k=1:length(folders)
     for i=1:4
         filename=[types{i} num2str(tooth,'%0.1f') 'MHz.bin']; %creates filenames
         arrsize=size(datafiles{i,2});
-        if(arrsize(2)==1){
+        if(arrsize(2)==1)
             disp('No data saved, continuing');
             continue;
         end
