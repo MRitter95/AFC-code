@@ -74,7 +74,6 @@ for i=1:numfiles
             if(xind>200)
                 xind=200; %fixes out of range issues
             end
-            disp(a)
             echovals(xind,i)=peaks(a);
         end
     end
