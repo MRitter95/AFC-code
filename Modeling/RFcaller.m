@@ -1,5 +1,5 @@
 % Script to call RFpoweranalysis on all the folders
-
+% Needs to be modified to work in arbitrary folders
 [modfreqs10, power10]=RFpoweranalysis('10MHz/0');
 [modfreqs20, power20]=RFpoweranalysis('20MHz/0');
 [modfreqs30, power30]=RFpoweranalysis('30MHz/0');
