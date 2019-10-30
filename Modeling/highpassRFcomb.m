@@ -8,7 +8,7 @@
 %Returns spectrum as well as time series data of modulated signal and
 %modulating signal
 
-function [t,rf_t_pass1, amp, f, amph, fh] = highpassRFcomb(f_c,f_d,f_m, f0l, f0h, func)
+function [t,rf_t_pass1, rf_t_highpass, amp, f, amph, fh] = highpassRFcomb(f_c,f_d,f_m, f_3dB, func)
 
 f_s= 4096*2; %sampling rate
 dt= 1/f_s; %time step
@@ -28,10 +28,10 @@ end
 
 rf_t_pass1= fmmod(m_pass1,f_c,f_s,f_d);
 
-%rf_t_highpass=bandpass(rf_t_pass1,f_3dB, f_s);
+rf_t_highpass=highpass(rf_t_pass1,f_3dB, f_s);
 
 [amp, f]=periodogram(rf_t_pass1,[],[], f_s);
-amph=amp.*(f./sqrt(f0l^2+f.^2)).^2;
-amph=amp.*(f0h./sqrt(f0h^2+f.^2)).^2;
-fh=f;
-%[amph, fh]=periodogram(rf_t_highpass,[],[], f_s);
+%amph=amp.*(f./sqrt(f0l^2+f.^2)).^2;
+%amph=amp.*(f0h./sqrt(f0h^2+f.^2)).^2;
+%fh=f;
+[amph, fh]=periodogram(rf_t_highpass,[],[], f_s);
