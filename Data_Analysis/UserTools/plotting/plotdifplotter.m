@@ -15,7 +15,7 @@ for i=1:20 %Go through 20 frequencies
         %depending on data, might want to skip first or last entry
         figure(2*i)
         hold on
-        plot(log10(difference{j+(i-1)*10}(1:end-1))) 
+        plot(log10(diff{j+(i-1)*10}(1:end-1))) 
         figure(2*i+1)
         hold on
         plot(log10(difflast{j+(i-1)*10}(1:end-1))) 
