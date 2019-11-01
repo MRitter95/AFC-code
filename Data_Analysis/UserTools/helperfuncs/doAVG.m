@@ -2,7 +2,7 @@
 %command) and performs a runnning average, returning the averaged values in
 %a row vector
 
-function [xaxis, yaxis, xint, xoff, ygain, yoff] = doAVG(data, RSArange)
+function [xaxis, yaxis, xint, xoff, ygain, yoff] = doAVG(data, RSArange, numtoskip)
 numfiles=length(data); %get number of files to process
 if(isempty(data))
     disp('no data of this type, returning default values')
@@ -25,7 +25,7 @@ yoff  = 0; %y offset
 
 %disp(['Starting averaging, extension detected as: ' ext])
 
-for k=1:numfiles
+for k=numtoskip:numfiles
     %disp(data(k).name) %display current filename
     
     if(strcmp(ext,'.trc')) %LeCroy waveform
