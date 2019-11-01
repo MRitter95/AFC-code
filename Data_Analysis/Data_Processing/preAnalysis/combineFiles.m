@@ -8,7 +8,7 @@ function [] = combineFiles(exptype, userpath, RSArange, numtoskip)
 if(nargin<1)
     disp(['Using the current directory: ' pwd ])
     pathOK=input('Is that ok (Y/N)?','s');
-    if(strcmp(pathOK,'Y'))
+    if(strcmp(pathOK,'Y')||strcmp(pathOK,'y'))
         userpath=pwd;
     else
         userpath=input('Please enter the desired directory','s');
