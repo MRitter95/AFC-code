@@ -11,15 +11,19 @@ function [echovals,timevals] = colormappingEcho(config, userpath)
 
 %Parameters for specific run
 if(nargin<1)
-    error('Please provide a configuration file with the experimental parameters')
+    disp(['Using the current directory: ' pwd ])
+    pathOK=input('Is that ok (Y/N)?','s');
+    if(strcmp(pathOK,'Y')||strcmp(pathOK,'y'))
+        userpath=pwd;
+    else
+        userpath=input('Please enter the desired directory','s');
+    end
+    config=input('Path to config file','s');
 end
-if(nargin<2)
-    userpath= pwd;
-    disp(['No directory provided, using current directory: ' pwd])
-end
-cd(userpath)
-configfile = config;
-fileID     = fopen(configfile);
+disp(['Processing data from: ' userpath])
+cd (userpath)
+
+fileID     = fopen(config);
 if(fileID == -1)
     error('unable to open file');
 end
