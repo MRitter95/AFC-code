@@ -2,7 +2,7 @@
 % integrates the RF power in the RSA traces weighting the different
 % frequencies by the bandwidth of the AOM
 
-function [modfreqs, power] = RFpoweranalysis(userdir)
+function [modfreqs, power] = RFpoweranalysis(userdir, threshold)
 startdir=pwd;
 cd(userdir)
 files=dir('*.bin'); % Get all data files names, expects only rfc data
@@ -24,7 +24,7 @@ amp=zeros(1, length(wave.y));
 
 for i=1:length(files)
     wave=readbin(files(i).name);
-    thresh=wave.y>-80; %remove signal that is below -80dB
+    thresh=wave.y>threshold; %remove signal that is below -80dB
     amp(thresh)=10.^(wave.y(thresh)/10); %turn signal back to amplitude
     amp=amp.*bw(wave.x*2)'; %weight amplitudes by bandwidth
     power(i)=sum(amp); % 'integrate' power
