@@ -2,7 +2,7 @@
 %command) and performs a runnning average, returning the averaged values in
 %a row vector
 
-function [xaxis, yaxis, xint, xoff, ygain, yoff] = doAVG(data)
+function [xaxis, yaxis, xint, xoff, ygain, yoff] = doAVG(data, RSArange)
 numfiles=length(data); %get number of files to process
 if(isempty(data))
     disp('no data of this type, returning default values')
@@ -48,7 +48,7 @@ if(strcmp(ext,'.trc'))
     xaxis=time'; %time axis, unused for storage efficiency (can recreate from xint and xoff)
     yaxis=int16(((yaxis'/numfiles)+yoff)/ygain); %convert y values back to int16 to store more efficiently 
 elseif(strcmp(ext,'.txt'))
-    xaxis=single(linspace(0,300,length(yaxis))); %generates a frequency axis (values are hard coded to 0 and 300 MHz)
+    xaxis=single(linspace(0,RSArange,length(yaxis))); %generates a frequency axis (values are hard coded to 0 and 300 MHz)
     yaxis=single(yaxis'/numfiles); %transpose y axis to turn into row vector
 end
     

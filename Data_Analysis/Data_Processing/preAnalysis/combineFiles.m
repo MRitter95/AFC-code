@@ -3,7 +3,7 @@
 %in the parent directory for further processing. It will process each
 %directory (i.e. modulation frequency) in parallel (max is 4 I think).
 
-function [] = combineFiles(exptype, userpath)
+function [] = combineFiles(exptype, userpath, RSArange)
 
 if(nargin<1)
     disp(['Using the current directory: ' pwd ])
@@ -14,6 +14,7 @@ if(nargin<1)
         userpath=input('Please enter the desired directory','s');
     end
     exptype=input('afc or echo data?','s');
+    RSArange=input('What was the RSA range in MHz?');
 end
 disp(['Processing data from: ' userpath])
 cd (userpath)
@@ -65,7 +66,7 @@ parfor k=1:length(folders)
     datafiles{4,1}=odatC3;
     
     for i=1:4
-        [xaxis,yaxis, hint, hoff, ygain, yoff]=doAVG(datafiles{i,1}); %average all the traces corresponding to a given dataset
+        [xaxis,yaxis, hint, hoff, ygain, yoff]=doAVG(datafiles{i,1}, RSArange); %average all the traces corresponding to a given dataset
         if (i>2)
             datafiles{i,2}=yaxis; %only keep y data since x data is just a scaled sequential array
             datafiles{i,3}=[hint, hoff, ygain, yoff]; %store waveform conversion data
