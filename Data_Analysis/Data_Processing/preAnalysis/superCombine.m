@@ -1,4 +1,5 @@
 function []=superCombine(exptype, userpath)
+startpath=pwd;
 if(nargin<1)
     disp(['Using the current directory: ' pwd ])
     pathOK=input('Is that ok (Y/N)?','s');
@@ -11,6 +12,8 @@ if(nargin<1)
 end
 cd(userpath)
 cd('0')
-combineFiles(exptype, fullfile(userpath, '0\'))
+combineFiles(exptype, fullfile(userpath, '0\'), 600, 1)
 cd('../1')
-combineFiles(exptype, fullfile(userpath, '1\'))
+combineFiles(exptype, fullfile(userpath, '1\'), 600, 1)
+
+cd(startpath)
