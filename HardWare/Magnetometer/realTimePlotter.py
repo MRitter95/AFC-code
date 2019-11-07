@@ -52,7 +52,7 @@ B4_y= list()
 B4_z= list()
 
 # I think the initial ser.close() is unnecessary, but just copied from online 
-ser = serial.Serial('COM10',9600)
+ser = serial.Serial('COM8',9600)
 ser.close()
 ser.open()
 
@@ -62,21 +62,21 @@ i=0
 with keyboard.Listener(on_press=on_press) as listener:
     while break_program == False:
         # read current B fields (awful variable names, I know, I know)
-        b1_x= int(ser.readline())
-        b1_y= int(ser.readline())
-        b1_z= int(ser.readline())
+        b1_x= float(ser.readline())
+        b1_y= float(ser.readline())
+        b1_z= float(ser.readline())
         
-        b2_x= int(ser.readline())
-        b2_y= int(ser.readline())
-        b2_z= int(ser.readline())
+        b2_x= float(ser.readline())
+        b2_y= float(ser.readline())
+        b2_z= float(ser.readline())
         
-        b3_x= int(ser.readline())
-        b3_y= int(ser.readline())
-        b3_z= int(ser.readline())
+        b3_x= float(ser.readline())
+        b3_y= float(ser.readline())
+        b3_z= float(ser.readline())
         
-        b4_x= int(ser.readline())
-        b4_y= int(ser.readline())
-        b4_z= int(ser.readline())       
+        b4_x= float(ser.readline())
+        b4_y= float(ser.readline())
+        b4_z= float(ser.readline())       
         
         # append current measurement to history for plot
         t.append(i)
