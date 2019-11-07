@@ -20,8 +20,10 @@ Serial.begin(9600);
 
 void loop()
 {
-unsigned int data[7];
-
+//unsigned int data[7];
+int msb[3];
+unsigned int lsb[3];
+int stat;
 ///////////////////////////////////////////////////////////////
 //SENSOR 1
 ///////////////////////////////////////////////////////////////
@@ -56,20 +58,31 @@ Wire.requestFrom(Addr1, 7);
 // status, xMag msb, xMag lsb, yMag msb, yMag lsb, zMag msb, zMag lsb
 if(Wire.available() == 7);
 {
-data[0] = Wire.read();
-data[1] = Wire.read();
-data[2] = Wire.read();
-data[3] = Wire.read();
-data[4] = Wire.read();
-data[5] = Wire.read();
-data[6] = Wire.read();
+//data[0] = Wire.read();
+//data[1] = Wire.read();
+//data[2] = Wire.read();
+//data[3] = Wire.read();
+//data[4] = Wire.read();
+//data[5] = Wire.read();
+//data[6] = Wire.read();
+stat=Wire.read();
+msb[0]=Wire.read();
+lsb[0]=Wire.read();
+msb[1]=Wire.read();
+lsb[1]=Wire.read();
+msb[2]=Wire.read();
+lsb[2]=Wire.read();
 }
  
 // Convert the data
-int xMag = data[1] * 256 + data[2];
-int yMag = data[3] * 256 + data[4];
-int zMag = data[5] * 256 + data[6];
- 
+//int xMag = data[1] * 256 + data[2];
+//int yMag = data[3] * 256 + data[4];
+//int zMag = data[5] * 256 + data[6];
+
+int xMag = msb[0]*256 + lsb[0];
+int yMag = msb[1]*256 + lsb[1];
+int zMag = msb[2]*256 + lsb[2];
+
 // Output sensor 1 measurements to serial port
 //Serial.println("Sensor 1");
 Serial.println(xMag);
@@ -114,20 +127,30 @@ Wire.requestFrom(Addr2, 7);
 // status, xMag msb, xMag lsb, yMag msb, yMag lsb, zMag msb, zMag lsb
 if(Wire.available() == 7);
 {
-data[0] = Wire.read();
-data[1] = Wire.read();
-data[2] = Wire.read();
-data[3] = Wire.read();
-data[4] = Wire.read();
-data[5] = Wire.read();
-data[6] = Wire.read();
+//data[0] = Wire.read();
+//data[1] = Wire.read();
+//data[2] = Wire.read();
+//data[3] = Wire.read();
+//data[4] = Wire.read();
+//data[5] = Wire.read();
+//data[6] = Wire.read();
+stat=Wire.read();
+msb[0]=Wire.read();
+lsb[0]=Wire.read();
+msb[1]=Wire.read();
+lsb[1]=Wire.read();
+msb[2]=Wire.read();
+lsb[2]=Wire.read();
 }
  
 // Convert the data
-xMag = data[1] * 256 + data[2];
-yMag = data[3] * 256 + data[4];
-zMag = data[5] * 256 + data[6];
- 
+//xMag = data[1] * 256 + data[2];
+//yMag = data[3] * 256 + data[4];
+//zMag = data[5] * 256 + data[6];
+
+xMag = msb[0]*256 + lsb[0];
+yMag = msb[1]*256 + lsb[1];
+zMag = msb[2]*256 + lsb[2];
 // Output sensor 2 measurements to serial port
 //Serial.println("Sensor 2");
 Serial.println(xMag);
@@ -171,20 +194,30 @@ Wire.requestFrom(Addr3, 7);
 // status, xMag msb, xMag lsb, yMag msb, yMag lsb, zMag msb, zMag lsb
 if(Wire.available() == 7);
 {
-data[0] = Wire.read();
-data[1] = Wire.read();
-data[2] = Wire.read();
-data[3] = Wire.read();
-data[4] = Wire.read();
-data[5] = Wire.read();
-data[6] = Wire.read();
+//data[0] = Wire.read();
+//data[1] = Wire.read();
+//data[2] = Wire.read();
+//data[3] = Wire.read();
+//data[4] = Wire.read();
+//data[5] = Wire.read();
+//data[6] = Wire.read();
+stat=Wire.read();
+msb[0]=Wire.read();
+lsb[0]=Wire.read();
+msb[1]=Wire.read();
+lsb[1]=Wire.read();
+msb[2]=Wire.read();
+lsb[2]=Wire.read();
 }
  
 // Convert the data
-xMag = data[1] * 256 + data[2];
-yMag = data[3] * 256 + data[4];
-zMag = data[5] * 256 + data[6];
- 
+//xMag = data[1] * 256 + data[2];
+//yMag = data[3] * 256 + data[4];
+//zMag = data[5] * 256 + data[6];
+
+xMag = msb[0]*256 + lsb[0];
+yMag = msb[1]*256 + lsb[1];
+zMag = msb[2]*256 + lsb[2];
 // Output sensor 3 measurements to serial port
 //Serial.println("Sensor 3");
 Serial.println(xMag);
@@ -228,19 +261,30 @@ Wire.requestFrom(Addr4, 7);
 // status, xMag msb, xMag lsb, yMag msb, yMag lsb, zMag msb, zMag lsb
 if(Wire.available() == 7);
 {
-data[0] = Wire.read();
-data[1] = Wire.read();
-data[2] = Wire.read();
-data[3] = Wire.read();
-data[4] = Wire.read();
-data[5] = Wire.read();
-data[6] = Wire.read();
+//data[0] = Wire.read();
+//data[1] = Wire.read();
+//data[2] = Wire.read();
+//data[3] = Wire.read();
+//data[4] = Wire.read();
+//data[5] = Wire.read();
+//data[6] = Wire.read();
+stat=Wire.read();
+msb[0]=Wire.read();
+lsb[0]=Wire.read();
+msb[1]=Wire.read();
+lsb[1]=Wire.read();
+msb[2]=Wire.read();
+lsb[2]=Wire.read();
 }
  
 // Convert the data
-xMag = data[1] * 256 + data[2];
-yMag = data[3] * 256 + data[4];
-zMag = data[5] * 256 + data[6];
+//xMag = data[1] * 256 + data[2];
+//yMag = data[3] * 256 + data[4];
+//zMag = data[5] * 256 + data[6];
+
+xMag = msb[0]*256 + lsb[0];
+yMag = msb[1]*256 + lsb[1];
+zMag = msb[2]*256 + lsb[2];
  
 // Output sensor 4 measurements to serial port
 //Serial.println("Sensor 4");
@@ -250,5 +294,5 @@ Serial.println(zMag);
 ///////////////////////////////////////////////////////////////
 //SENSOR 4
 ///////////////////////////////////////////////////////////////
-delay(1000);
+//delay(1000);
 }
