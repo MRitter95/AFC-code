@@ -17,7 +17,7 @@ clear_plot= False
 def on_press(key):
     global break_program
     global clear_plot
-    
+        
     # listen for Esc, exit if it's pressed.
     if key == keyboard.Key.esc:
         print ('esc pressed. exiting...')
@@ -25,7 +25,7 @@ def on_press(key):
         return False
     
     # listen for Home, clear plots if it's pressed
-    if key == keyboard.Key.home:
+    if key == keyboard.Key.ctrl_r:
         print('home pressed. clearing plot...')
         clear_plot= True
 ##################################################
@@ -52,7 +52,7 @@ B4_y= list()
 B4_z= list()
 
 # I think the initial ser.close() is unnecessary, but just copied from online 
-ser = serial.Serial('COM3',9600)
+ser = serial.Serial('COM10',9600)
 ser.close()
 ser.open()
 
@@ -140,10 +140,10 @@ with keyboard.Listener(on_press=on_press) as listener:
         i += 1
         print('now displaying ',i,' points.')       
         print ('press Esc to exit,')
-        print('Home to clear plots.')
+        print('right Ctrl to clear plots.')
         
         plt.show()
-        time.sleep(1)
+        time.sleep(0.1)
 
         # checks to see if plots should be cleared
         if clear_plot == True:
