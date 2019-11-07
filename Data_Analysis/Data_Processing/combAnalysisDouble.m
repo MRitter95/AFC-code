@@ -1,7 +1,7 @@
 %Get tones from probe to produce 'real' frequency axis, combine the low and
 %high frequency combs and finally take the fourier transform of the result
 
-function [freq, amp, freqT, ampT]= ...
+function [freq, amp, freqT, ampT, probe1, probe2,freqaxisp1,freqaxisp2]= ...
     combAnalysisDouble(afcfile, probefile, sweep1, sweep2, sweepspeed)
 
 %% Data input
@@ -40,23 +40,31 @@ p1end      = tones(3)-round(backoffset/deltaT);
 p2start    = tones(4)+round(frontoffset/deltaT);
 p2end      = tones(5)-round(backoffset/deltaT);
 
-amp1       = amps(p1start:p1end); %low freq sweep
-amp2       = amps(p2start:p2end); %high freq sweep
+amp1       = amps(p1start:p1end)-mean(amps(1:tones(1))); %low freq sweep
+amp2       = amps(p2start:p2end)-mean(amps(1:tones(1))); %high freq sweep
 pulse1     = [ptime(p1start),ptime(p1end)];
 pulse2     = [ptime(p2start),ptime(p2end)];
 
-probe1     = pamp(p1start:p1end);
-probe2     = pamp(p2start:p2end);
-probe1     = probe1/max([probe1' probe2']);
-probe2     = probe2/max([probe1' probe2']);
+probe1     = pamp(p1start:p1end)-mean(pamp(1:tones(1)));
+probe2     = pamp(p2start:p2end)-mean(pamp(1:tones(1)));
+normval    = max([max(probe1) max(probe2)]);
+
+probe1     = probe1/normval;
+probe2     = probe2/normval;
+
+amp1=avgByNs(amp1,50);
+amp2=avgByNs(amp2,50);
+probe1=avgByNs(probe1,50);
+probe2=avgByNs(probe2,50);
 
 %Creating frequency axes, the factor originates from double passing the AOM
 freqaxisp1 = sweepspeed*2*(ptime(p1start:p1end)-pulse1(1))+2*f1;
 freqaxisp2 = sweepspeed*2*(ptime(p2start:p2end)-pulse2(1))+2*f1b;
 
+freqaxisp1 = avgByNs(freqaxisp1,50);
+freqaxisp2 = avgByNs(freqaxisp2,50);
 %Combine the high/ low frequency combs into a single comb (just adding them
 %together at the moment
 [freqT,ampT] = combineCombs(freqaxisp1,amp1,freqaxisp2,amp2, probe1, probe2);
-ampT         = ampT-mean(ampT);
 df           = freqT(2)-freqT(1);
 [amp, freq]  = periodogram(ampT,[],[],1./df);

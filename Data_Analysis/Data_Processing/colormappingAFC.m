@@ -5,7 +5,7 @@
 %parameters (start and stop frequency, sweeprate etc.). If no path is
 %specified, the code will use the current directory to find all the files
 %(currently the config file is one folder up)
-function [echovals] = colormappingAFC(config, userpath)
+function [] = colormappingAFC(config, userpath, savefigs, plotprobes)
 
 %% User input
 
@@ -19,6 +19,18 @@ if(nargin<1)
         userpath=input('Please enter the desired directory','s');
     end
     config=input('Path to config file','s');
+    ufigs=input('Savefigs? (Y/N)','s');
+    if(strcmp(ufigs,'Y')||strcmp(ufigs,'y'))
+        savefigs=true;
+    else
+        savefigs=false;
+    end
+    uprobes=input('Plot probes? (Y/N)','s');
+    if(strcmp(uprobes,'Y')||strcmp(uprobes,'y'))
+        plotprobes=true;
+    else
+        plotprobes=false;
+    end
 end
 disp(['Processing data from: ' userpath])
 cd (userpath)
@@ -54,14 +66,13 @@ numfiles=length(afcfiles);
 
 echovals=zeros(200,200); %array to hold all the echoes
 timevals=zeros(1,numfiles);
-savefigs=true;
 
 %This for loop runs through all the files in the directory and produces
 %combined combs as well as the fourier transform of the comb
 for i=1:numfiles
     %get the fourier transformed data (first two variables) and the
     %combined comb data for plotting
-    [ffreq, famp, combinedf, combineda]=combAnalysisDouble( ...
+    [ffreq, famp, combinedf, combineda, probe1, probe2, f1, f2]=combAnalysisDouble( ...
         afcfiles(i).name, probefiles(i).name, sweep1, sweep2, sweepspeed);
     %Get the peaks and locations of peaks in the fourier transform data for
     %visualization and later analysis
@@ -72,9 +83,11 @@ for i=1:numfiles
         'MinPeakProminence',minprom, 'MinPeakDistance', mindist);
     %Add all the peaks found to the echo array as well as the extracted
     %'storage' frequency (1/tstorage)
-    max(ffreq)
     if(~isempty(locs))
         for a=1:length(locs)
+            if(locs(a)>10.)
+                continue;
+            end
             xind=round(10./locs(a));%generates stored freq multiplied by 10
             if(xind>200)
                 xind=200; %fixes out of range issues
@@ -86,11 +99,14 @@ for i=1:numfiles
     end
     
     %Plotting the combined combs
-    figure(1)
+    combs=figure(1);
     hold on
-    combinedf=avgByNs(combinedf',100); %reduce the amount of data
-    combineda=avgByNs(combineda',100); %makes plots look smoother
-    plot(combinedf, combineda+(i)*step);
+    %combinedf=avgByNs(combinedf',100); %reduce the amount of data
+    %combineda=avgByNs(combineda',100); %makes plots look smoother
+    plot(combinedf, combineda+(i)*step)
+    if(plotprobes)
+        plot(f1, probe1+(i)*step, f2, probe2+(i)*step);
+    end
     xlabel('Frequency (MHz)');
     ylabel('Modulation frequency (MHz)');
     title({'Comb data';userpath},'Interpreter','none');
@@ -101,9 +117,9 @@ for i=1:numfiles
     set(gca,'XLim', [80 320]);
     set(gca,'YTick', oldvals);
     set(gca,'YTickLabel', newvals);
-
+    set(gca,'TickDir','out');
     %% Echo plotting with peaks and hyperbolae
-    figure(2)
+    combsfft=figure(2);
     hold on
     plot(ffreq, famp+(i)*step, locs, peaks+(i)*step, 'x');
     oldvals=0:step*numfiles/40:step*numfiles;
@@ -113,8 +129,8 @@ for i=1:numfiles
     set(gca,'YTickLabel', newvals);
     xlabel('Time (us)');
     ylabel('Modulation frequency (MHz)');
+    set(gca,'TickDir','out');
     title({'FT of comb data';userpath},'Interpreter','none');
-    
     disp([num2str(i./10) ' MHz']);
 end
 
@@ -140,9 +156,11 @@ set(gca,'XTick', oldvals);
 set(gca,'XTickLabel', newvals);
 set(gca,'YTick', oldvals);
 set(gca,'YTickLabel', newvals);
+set(gca,'TickDir','out');
 xlabel('Modulation frequency (MHz)');
 ylabel('Storage frequency (MHz)');
 title({'AFC Stored frequency vs programmed frequency';userpath},'Interpreter','none');
+pbaspect([1 1 1])
 
 figure(4)
 freq=startfreq:0.1:endfreq; %creates a frequency array spanning the modulating frequencies
@@ -152,14 +170,16 @@ for i=1:10
     plot(log(time),log(i*time),log(time),log(time/i))
 end
 plot(log(time),log(timevals),'x')
+pbaspect([1 1 1])
 hline(log(cutoff),'r','Cutoff')
 xlabel('Programmed storage time (log(us))');
 ylabel('Storage time (log(us))');
 title({'AFC Stored time vs programmed time';userpath},'Interpreter','none');
+set(gca,'TickDir','out');
 
 if(savefigs)
-print('-f1','Combs','-dpdf','-r1000','-fillpage') %saves probe traces
-print('-f2','AFCEchoes','-dpdf','-r1000','-fillpage') %saves echo traces
-print('-f3','Colormap', '-dpdf','-r500','-fillpage') % saves storage time info
-print('-f4','Storage','-dpdf','-r500','-fillpage') %saves efficiency figure
+savefig(combs,'Combs','compact') %saves comb traces
+savefig(combsfft,'AFCEchoes','compact') %saves FFT traces
+print('-f3','Colormap', '-dpdf','-r500','-bestfit') % saves storage time info
+print('-f4','Storage','-dpdf','-r500','-bestfit') %saves efficiency figure
 end
