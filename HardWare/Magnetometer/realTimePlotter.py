@@ -52,7 +52,7 @@ B4_y= list()
 B4_z= list()
 
 # I think the initial ser.close() is unnecessary, but just copied from online 
-ser = serial.Serial('COM8',9600)
+ser = serial.Serial('COM3',9600,timeout=0)
 ser.close()
 ser.open()
 
@@ -61,91 +61,90 @@ i=0
 
 with keyboard.Listener(on_press=on_press) as listener:
     while break_program == False:
-        # read current B fields (awful variable names, I know, I know)
-        b1_x= float(ser.readline())
-        b1_y= float(ser.readline())
-        b1_z= float(ser.readline())
-        
-        b2_x= float(ser.readline())
-        b2_y= float(ser.readline())
-        b2_z= float(ser.readline())
-        
-        b3_x= float(ser.readline())
-        b3_y= float(ser.readline())
-        b3_z= float(ser.readline())
-        
-        b4_x= float(ser.readline())
-        b4_y= float(ser.readline())
-        b4_z= float(ser.readline())       
-        
-        # append current measurement to history for plot
-        t.append(i)
-        B1_x.append(b1_x)
-        B1_y.append(b1_y)
-        B1_z.append(b1_z)
-        
-        B2_x.append(b2_x)
-        B2_y.append(b2_y)
-        B2_z.append(b2_z)
-        
-        B3_x.append(b3_x)
-        B3_y.append(b3_y)
-        B3_z.append(b3_z)
-        
-        B4_x.append(b4_x)
-        B4_y.append(b4_y)
-        B4_z.append(b4_z)       
-        
-        # set plot size
-        fig=plt.figure()
-        plt.figure(figsize=(20,13))
-        
-        # subplot(4,3,1) means:
-        # subplot array is 4x3 for 4 sensors, 3 B components;
-        # currently dealing with subplot #1.
-        
-        # zomg so many plots!
-        #sensor 1
-        plt.subplot(4,3,1)
-        plt.plot(t,B1_x,'r')
-        plt.subplot(4,3,2)
-        plt.plot(t,B1_y,'g')
-        plt.subplot(4,3,3)
-        plt.plot(t,B1_z,'b')
-        
-        #sensor 2
-        plt.subplot(4,3,4)
-        plt.plot(t,B2_x,'r')
-        plt.subplot(4,3,5)
-        plt.plot(t,B2_y,'g')
-        plt.subplot(4,3,6)
-        plt.plot(t,B2_z,'b')
-        
-        #sensor 3
-        plt.subplot(4,3,7)        
-        plt.plot(t,B3_x,'r')
-        plt.subplot(4,3,8)
-        plt.plot(t,B3_y,'g')
-        plt.subplot(4,3,9)
-        plt.plot(t,B3_z,'b')
-        
-        #sensor 4
-        plt.subplot(4,3,10)
-        plt.plot(t,B4_x,'r')
-        plt.subplot(4,3,11)
-        plt.plot(t,B4_y,'g')
-        plt.subplot(4,3,12)
-        plt.plot(t,B4_z,'b')
-        
-        i += 1
-        print('now displaying ',i,' points.')       
-        print ('press Esc to exit,')
-        print('right Ctrl to clear plots.')
-        
-        plt.show()
-        time.sleep(0.1)
+        time.sleep(0.5)
+        numBytes= ser.inWaiting()
+#        print(numBytes,'bytes buffered')
+        data= ser.read(numBytes)
 
-        # checks to see if plots should be cleared
+        if numBytes<80:
+            data= []
+        else:
+            data= data.split()
+            data= str(data[0])
+            if numBytes>90:
+                data= data.split("\r\n")
+                data= data[-1]
+            data= data[2:len(data)-1]
+            data= data.split(",")
+#            print(data)
+            
+        if len(data)==12:    
+            # append current measurement to history for plot
+            t.append(i)
+            B1_x.append(float(data[0]))
+            B1_y.append(float(data[1]))
+            B1_z.append(float(data[2]))
+            
+            B2_x.append(float(data[3]))
+            B2_y.append(float(data[4]))
+            B2_z.append(float(data[5]))
+            
+            B3_x.append(float(data[6]))
+            B3_y.append(float(data[7]))
+            B3_z.append(float(data[8]))
+            
+            B4_x.append(float(data[9]))
+            B4_y.append(float(data[10]))
+            B4_z.append(float(data[11]))      
+        
+            # set plot size
+            fig=plt.figure(figsize=(20,13))
+            
+            # subplot(4,3,1) means:
+            # subplot array is 4x3 for 4 sensors, 3 B components;
+            # currently dealing with subplot #1.
+            
+            # zomg so many plots!
+            #sensor 1
+            plt.subplot(4,3,1)
+            plt.plot(t,B1_x,'r')
+            plt.subplot(4,3,2)
+            plt.plot(t,B1_y,'g')
+            plt.subplot(4,3,3)
+            plt.plot(t,B1_z,'b')
+            
+            #sensor 2
+            plt.subplot(4,3,4)
+            plt.plot(t,B2_x,'r')
+            plt.subplot(4,3,5)
+            plt.plot(t,B2_y,'g')
+            plt.subplot(4,3,6)
+            plt.plot(t,B2_z,'b')
+            
+            #sensor 3
+            plt.subplot(4,3,7)        
+            plt.plot(t,B3_x,'r')
+            plt.subplot(4,3,8)
+            plt.plot(t,B3_y,'g')
+            plt.subplot(4,3,9)
+            plt.plot(t,B3_z,'b')
+            
+            #sensor 4
+            plt.subplot(4,3,10)
+            plt.plot(t,B4_x,'r')
+            plt.subplot(4,3,11)
+            plt.plot(t,B4_y,'g')
+            plt.subplot(4,3,12)
+            plt.plot(t,B4_z,'b')
+            
+            i += 1
+            
+            plt.show()
+            print('now displaying ',i,' points.')       
+            print ('press Esc to exit,')
+            print('right Ctrl to clear plots.')
+            
+            # checks to see if plots should be cleared
         if clear_plot == True:
             t= list()
             B1_x= list()
@@ -166,7 +165,7 @@ with keyboard.Listener(on_press=on_press) as listener:
             
             clear_plot= False
             i= 0
-        
+            
     listener.join()
 
 ser.close()
