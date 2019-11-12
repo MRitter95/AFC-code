@@ -13,6 +13,7 @@ Adafruit_MLX90393 sensor2 = Adafruit_MLX90393();
 Adafruit_MLX90393 sensor3 = Adafruit_MLX90393();
 
 
+
 void setup(void)
 {
   Serial.begin(9600);
@@ -34,14 +35,14 @@ void setup(void)
   }
 }
 
-void outputdat(Adafruit_MLX90393 sensor){
-    float x,y,z;
-    sensor.readData(&x,&y,&z);
-    Serial.println(x);
-    Serial.println(y);
-    Serial.println(z);
-    return;
-}
+//void outputdat(Adafruit_MLX90393 sensor){
+//    float x,y,z;
+//    sensor.readData(&x,&y,&z);
+//    Serial.println(x);
+//    Serial.println(y);
+//    Serial.println(z);
+//    return;
+//}
     
 void loop(void)
 {
@@ -79,9 +80,31 @@ void loop(void)
         Serial.println("Unable to read XYZ data from the sensor.");
     }
 */
-    outputdat(sensor);
-    outputdat(sensor1);
-    outputdat(sensor2);
-    outputdat(sensor3);
-    delay(500);
+    sensor.setGain(0);
+    sensor1.setGain(0);
+    sensor2.setGain(0);
+    sensor3.setGain(0);
+
+
+    sensor.readData(&x,&y,&z);
+    Serial.print(x);Serial.print(",");Serial.print(y);Serial.print(",");Serial.print(z);
+    Serial.print(",");
+    sensor1.readData(&x,&y,&z);
+    Serial.print(x);Serial.print(",");Serial.print(y);Serial.print(",");Serial.print(z);
+    Serial.print(",");
+    sensor2.readData(&x,&y,&z);
+    Serial.print(x);Serial.print(",");Serial.print(y);Serial.print(",");Serial.print(z);
+    Serial.print(",");
+    sensor3.readData(&x,&y,&z);
+    Serial.print(x);Serial.print(",");Serial.print(y);Serial.print(",");Serial.println(z);
+//    Serial.println(sensor.getGain());
+//    Serial.println(sensor1.getGain());
+//    Serial.println(sensor2.getGain());
+//    Serial.println(sensor3.getGain());
+
+//    outputdat(sensor);
+//    outputdat(sensor1);
+//    outputdat(sensor2);
+//    outputdat(sensor3);
+    delay(1000);
 }
