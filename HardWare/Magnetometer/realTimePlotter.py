@@ -8,7 +8,7 @@ from pynput import keyboard
 import time
 import serial
 import matplotlib.pyplot as plt
-
+import numpy as np
 ##################################################
 # global vars & function for listening to keyboard
 break_program= False
@@ -61,44 +61,58 @@ i=0
 
 with keyboard.Listener(on_press=on_press) as listener:
     while break_program == False:
-        time.sleep(0.5)
+        time.sleep(0.3)
         numBytes= ser.inWaiting()
 #        print(numBytes,'bytes buffered')
-        data= ser.read(numBytes)
+        
+        if numBytes>0:
+            buffer= ser.read(numBytes)
+            buffer= buffer.split()
+            
+            numLines= len(buffer)
 
-        if numBytes<80:
-            data= []
-        else:
-            data= data.split()
-            data= str(data[0])
-            if numBytes>90:
-                data= data.split("\r\n")
-                data= data[-1]
-            data= data[2:len(data)-1]
-            data= data.split(",")
-#            print(data)
+            toPlot= np.zeros(12)
             
-        if len(data)==12:    
+            if numLines>=3:
+                buffer= buffer[1:-1]
+                numLines= len(buffer)
+
+                for j in range(numLines):
+                    line= str(buffer[j])
+#                    print(line)
+                    line= line[2:len(line)-1]
+                    line= line.split(",")
+#                    print(line)
+                    
+                    for k in range(12):
+                        toPlot[k]= toPlot[k]+float(line[k])/numLines
+
+#                print(toPlot)
+#            
+##            buffer= buffer[2:len(buffer)-1]
+##            buffer= buffer.split(",")
+#            print(buffer)
+            
             # append current measurement to history for plot
-            t.append(i)
-            B1_x.append(float(data[0]))
-            B1_y.append(float(data[1]))
-            B1_z.append(float(data[2]))
+                t.append(i)
+                B1_x.append(toPlot[0])
+                B1_y.append(toPlot[1])
+                B1_z.append(toPlot[2])
             
-            B2_x.append(float(data[3]))
-            B2_y.append(float(data[4]))
-            B2_z.append(float(data[5]))
+                B2_x.append(toPlot[3])
+                B2_y.append(toPlot[4])
+                B2_z.append(toPlot[5])
             
-            B3_x.append(float(data[6]))
-            B3_y.append(float(data[7]))
-            B3_z.append(float(data[8]))
+                B3_x.append(toPlot[6])
+                B3_y.append(toPlot[7])
+                B3_z.append(toPlot[8])
             
-            B4_x.append(float(data[9]))
-            B4_y.append(float(data[10]))
-            B4_z.append(float(data[11]))      
+                B4_x.append(toPlot[9])
+                B4_y.append(toPlot[10])
+                B4_z.append(toPlot[11])      
         
             # set plot size
-            fig=plt.figure(figsize=(20,13))
+                fig=plt.figure(figsize=(20,13))
             
             # subplot(4,3,1) means:
             # subplot array is 4x3 for 4 sensors, 3 B components;
@@ -106,43 +120,44 @@ with keyboard.Listener(on_press=on_press) as listener:
             
             # zomg so many plots!
             #sensor 1
-            plt.subplot(4,3,1)
-            plt.plot(t,B1_x,'r')
-            plt.subplot(4,3,2)
-            plt.plot(t,B1_y,'g')
-            plt.subplot(4,3,3)
-            plt.plot(t,B1_z,'b')
+                plt.subplot(4,3,1)
+                plt.plot(t,B1_x,'r')
+                plt.subplot(4,3,2)
+                plt.plot(t,B1_y,'g')
+                plt.subplot(4,3,3)
+                plt.plot(t,B1_z,'b')
             
             #sensor 2
-            plt.subplot(4,3,4)
-            plt.plot(t,B2_x,'r')
-            plt.subplot(4,3,5)
-            plt.plot(t,B2_y,'g')
-            plt.subplot(4,3,6)
-            plt.plot(t,B2_z,'b')
-            
+                plt.subplot(4,3,4)
+                plt.plot(t,B2_x,'r')
+                plt.subplot(4,3,5)
+                plt.plot(t,B2_y,'g')
+                plt.subplot(4,3,6)
+                plt.plot(t,B2_z,'b')
+                
             #sensor 3
-            plt.subplot(4,3,7)        
-            plt.plot(t,B3_x,'r')
-            plt.subplot(4,3,8)
-            plt.plot(t,B3_y,'g')
-            plt.subplot(4,3,9)
-            plt.plot(t,B3_z,'b')
+                plt.subplot(4,3,7)        
+                plt.plot(t,B3_x,'r')
+                plt.subplot(4,3,8)
+                plt.plot(t,B3_y,'g')
+                plt.subplot(4,3,9)
+                plt.plot(t,B3_z,'b')
             
             #sensor 4
-            plt.subplot(4,3,10)
-            plt.plot(t,B4_x,'r')
-            plt.subplot(4,3,11)
-            plt.plot(t,B4_y,'g')
-            plt.subplot(4,3,12)
-            plt.plot(t,B4_z,'b')
+                plt.subplot(4,3,10)
+                plt.plot(t,B4_x,'r')
+                plt.subplot(4,3,11)
+                plt.plot(t,B4_y,'g')
+                plt.subplot(4,3,12)
+                plt.plot(t,B4_z,'b')
             
-            i += 1
+                i += 1
             
-            plt.show()
-            print('now displaying ',i,' points.')       
-            print ('press Esc to exit,')
-            print('right Ctrl to clear plots.')
+                plt.show()
+                print('now displaying ',i,' points.')
+                print('last point averaged ',numLines,' lines.')
+                print ('press Esc to exit,')
+                print('right Ctrl to clear plots.')
             
             # checks to see if plots should be cleared
         if clear_plot == True:
