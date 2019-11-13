@@ -6,13 +6,13 @@ function [] = RFcaller(userpath, threshold, isRFC)
 if(nargin<1)
     disp(['Using the current directory: ' pwd ])
     pathOK=input('Is that ok (Y/N)?','s');
-    if(strcmp(pathOK,'Y'))
+    if(strcmp(pathOK,'Y')||strcmp(pathOK,'y'))
         userpath=pwd;
     else
         userpath=input('Please enter the desired directory','s');
     end
     RFCstat=input('rfc data? (Y/N)','s');
-    if(strcmp(RFCstat,'Y'))
+    if(strcmp(RFCstat,'Y')||strcmp(RFCstat,'y'))
         isRFC='true';
     else
         isRFC='false';
@@ -30,9 +30,16 @@ cd (userpath)
 
 figure
 hold on
-plot(modfreqs10, power10)
-plot(modfreqs20, power20)
-plot(modfreqs30, power30)
-plot(modfreqs40, power40)
+if(strcmp(isRFC,'true'))
+    plot(modfreqs10, power10.^2)
+    plot(modfreqs20, power20.^2)
+    plot(modfreqs30, power30.^2)
+    plot(modfreqs40, power40.^2)
+else
+    plot(modfreqs10, power10)
+    plot(modfreqs20, power20)
+    plot(modfreqs30, power30)
+    plot(modfreqs40, power40)
+end
 legend('10 MHz','20 MHz', '30 MHz', '40 MHz');
 title(['RF power with ' num2str(threshold) ' dB threshold'])
