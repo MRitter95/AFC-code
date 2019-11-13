@@ -2,7 +2,7 @@
 % integrates the RF power in the RSA traces weighting the different
 % frequencies by the bandwidth of the AOM
 
-function [modfreqs, power] = RFpoweranalysis(userdir, threshold, useAOM)
+function [modfreqs, power, powerint] = RFpoweranalysis(userdir, threshold, useAOM)
 startdir=pwd;
 cd(userdir)
 files=dir('*.bin'); % Get all data files names, expects only rfc data
@@ -19,24 +19,28 @@ freqsmeas=linspace(60, 160, length(bandwidthdat));
 bw=fit(freqsmeas', bandwidthdat', 'gauss2'); 
 
 power=zeros(1,length(files));
+powerint=zeros(1,length(files));
 wave=readbin(files(1).name);
-amp=zeros(1, length(wave.y));
+startf=findEl(wave.x, 20); %sets BW of analysis
+endf=findEl(wave.x, 180); 
+amp=zeros(1, length(wave.y(startf:endf)));
 
 for i=1:length(files)
     wave=readbin(files(i).name);
-    startf=findEl(wave.x, 20);
-    endf=findEl(wave.x, 180);
-    trunc=wave.y(startf: endf);
-    thresh=trunc>threshold; %remove signal that is below -80dB
+    trunc=wave.y(startf: endf); %only care about signal in our BW
+    thresh=trunc>threshold; %remove signal that is below threshold
     
-    amp(thresh)=10.^(wave.y(thresh)/10); %turn signal back to amplitude
+    amp(thresh)=10.^((trunc(thresh)-threshold)/10); %turn signal back to amplitude
+
     if(strcmp(useAOM,'true'))
         amp=amp.*bw(wave.x(startf: endf))'; %weight amplitudes by bandwidth
     end
     power(i)=sum(amp); % 'integrate' power
+    powerint(i)=trapz(wave.x(startf:endf), amp);
 end
 
 power=power/max(power);
+powerint=powerint/max(powerint);
 modfreqs=linspace(0.1, 20, 200);
 
 cd (startdir);

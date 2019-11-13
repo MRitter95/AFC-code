@@ -5,7 +5,7 @@
 %parameters (start and stop frequency, sweeprate etc.). If no path is
 %specified, the code will use the current directory to find all the files
 %(currently the config file is one folder up)
-function [echovals,timevals] = colormappingEcho(config, userpath)
+function [echovals] = colormappingEcho(config, userpath, savefigs)
 
 %% User input
 
@@ -19,6 +19,12 @@ if(nargin<1)
         userpath=input('Please enter the desired directory','s');
     end
     config=input('Path to config file','s');
+    ufigs=input('Savefigs? (Y/N)','s');
+    if(strcmp(ufigs,'Y')||strcmp(ufigs,'y'))
+        savefigs=true;
+    else
+        savefigs=false;
+    end
 end
 disp(['Processing data from: ' userpath])
 cd (userpath)
@@ -54,7 +60,7 @@ numfiles=length(echofiles);
 
 echovals=zeros(200,200); %array to hold all the echoes
 timevals=zeros(1,numfiles);
-savefigs=true;
+
 %This for loop runs through all the files in the directory and produces
 %combined combs as well as the fourier transform of the comb
 for i=1:numfiles
@@ -96,7 +102,7 @@ for i=1:numfiles
     end
 
     %% Echo plotting with peaks and hyperbolae
-    figure(1)
+    probes=figure(1);
     hold on
     plot(timep, ampp+(i)*stepp, locsp, peaksp+(i)*stepp, 'x');
     oldvals=0:stepp*numfiles/40.:stepp*numfiles;
@@ -108,7 +114,7 @@ for i=1:numfiles
     ylabel('Modulation frequency (MHz)');
     title({'Probe data';userpath},'Interpreter','none');
     
-    figure(2)
+    echoes=figure(2);
     hold on
     plot(time, amp+(i)*step, locs, peaks+(i)*step, 'x');
     oldvals=0:step*numfiles/40.:step*numfiles;
@@ -148,6 +154,8 @@ set(gca,'YTickLabel', newvals);
 xlabel('Modulation frequency (MHz)');
 ylabel('Storage frequency (MHz)');
 title({'Stored frequency vs programmed frequency';userpath},'Interpreter','none');
+set(gca,'TickDir','out');
+pbaspect([1 1 1])
 
 figure(4)
 freq=startfreq:0.1:endfreq; %creates a frequency array spanning the modulating frequencies
@@ -161,10 +169,12 @@ hline(log(cutoff),'r','Cutoff')
 xlabel('Programmed storage time (log(us))');
 ylabel('Storage time (log(us))');
 title({'Stored time vs programmed time';userpath},'Interpreter','none');
+set(gca,'TickDir','out');
+pbaspect([1 1 1])
 
 if(savefigs)
-print('-f1','Probes','-dpdf','-r1000','-fillpage') %saves probe traces
-print('-f2','Echoes','-dpdf','-r1000','-fillpage') %saves echo traces
-print('-f3','Colormap', '-dpdf','-r500','-fillpage') % saves storage time info
-print('-f4','Storage','-dpdf','-r500','-fillpage') %saves efficiency figure
+savefig(probes,'Probes','compact') %saves comb traces
+savefig(echoes,'Echoes','compact') %saves FFT traces
+print('-f3','Colormap', '-dpdf','-r500','-bestfit') % saves storage time info
+print('-f4','Storage','-dpdf','-r500','-bestfit') %saves efficiency figure
 end

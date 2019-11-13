@@ -13,12 +13,12 @@ load('plotdiff_output.mat')
 for i=1:20 %Go through 20 frequencies
     for j=1:10 %Show slices of 1MHz at a time
         %depending on data, might want to skip first or last entry
-        figure(2*i)
+        figure(2*i+50)
         hold on
-        plot(log10(diff{j+(i-1)*10}(1:end-1))) 
-        figure(2*i+1)
-        hold on
-        plot(log10(difflast{j+(i-1)*10}(1:end-1))) 
+        plot(log10(difference{j+(i-1)*10}(1:end))) 
+        %figure(2*i+1)
+        %hold on
+        %plot(log10(difflast{j+(i-1)*10}(1:end-1))) 
     end
     title(sprintf(strcat(expdate,' Starting at %.1f MHz going to %.1f MHz'),(i-1)+0.1,i))
     axis([-inf,inf,-inf,inf])

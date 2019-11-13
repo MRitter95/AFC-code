@@ -5,7 +5,7 @@
 %parameters (start and stop frequency, sweeprate etc.). If no path is
 %specified, the code will use the current directory to find all the files
 %(currently the config file is one folder up)
-function [] = colormappingAFC(config, userpath, savefigs, plotprobes)
+function [echovals] = colormappingAFC(config, userpath, savefigs, plotprobes)
 
 %% User input
 
