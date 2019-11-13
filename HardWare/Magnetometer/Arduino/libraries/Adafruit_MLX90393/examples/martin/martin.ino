@@ -80,10 +80,10 @@ void loop(void)
         Serial.println("Unable to read XYZ data from the sensor.");
     }
 */
-    sensor.setGain(0);
-    sensor1.setGain(0);
-    sensor2.setGain(0);
-    sensor3.setGain(0);
+    sensor.setGain(MLX90393_GAIN_5X);
+    sensor1.setGain(MLX90393_GAIN_5X);
+    sensor2.setGain(MLX90393_GAIN_5X);
+    sensor3.setGain(MLX90393_GAIN_5X);
 
 
     sensor.readData(&x,&y,&z);
@@ -106,5 +106,5 @@ void loop(void)
 //    outputdat(sensor1);
 //    outputdat(sensor2);
 //    outputdat(sensor3);
-    delay(1000);
+//    delay(100);
 }
