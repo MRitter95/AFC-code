@@ -1,7 +1,7 @@
 %This script calculates the difference between consecutive traces for all
 %frequencies in an experiment and stores the results in three cells that
 %can be plotted with the plotdifplotter script if saved. 
-function [] = plotdifs(userpath, expdate)
+function [] = diffsweepsCaller(userpath, expdate)
 if(nargin<1)
     disp(['Using the current directory: ' pwd ])
     pathOK=input('Is that ok (Y/N)?','s');
@@ -17,8 +17,8 @@ cd (userpath)
 
 %% Get list of folders and sort them
 files    = dir; %lists all the file and folder names
-%removes the 'current' and 'parent' directory folders
-files    = files(~ismember({files.name},{'.','..'})); 
+%removes the 'current' and 'parent' directory folders and other junkn
+files    = files(~ismember({files.name},{'.','..','CombineFilesfull'})); 
 dirFlags = [files.isdir]; %flags each entry as a folder (boolean)
 folders  = files(dirFlags); %only store the folders
 %sort folders currently by numerical value
@@ -33,11 +33,12 @@ topdir     = pwd;
 
 parfor k=1:length(folders) %loop over all the folders in the directory
     currentdir=folders(k).name; %get current folder name
+    disp(['Current data folder: ' currentdir])
+    
     freq=str2double(currentdir)/1e+6;
-    probename=['probe' num2str(freq) 'MHz.bin'];
+    probename=['probe' num2str(freq,'%0.1f') 'MHz.bin'];
     probe=readbin(probename, 'true');
     tones=findTones2(probe);
-    disp(['Current data folder: ' currentdir])
     %create full file path to files that will be processed
     filepath = fullfile(topdir, currentdir, 'C1*.trc');
     afcs     = dir(filepath);
@@ -61,7 +62,7 @@ parfor k=1:length(folders) %loop over all the folders in the directory
     variance{k}   = tempvar;
 end
 
-outfile='plotdiff_output.mat';
+outfile='sweepdiff_output.mat';
 save(outfile, 'difference', 'netval', 'variance', 'expdate', 'folders');
 
 end

@@ -13,6 +13,7 @@ if(isempty(data))
     return 
 end
 
+start=1;
 %% Initialization
 numfiles=length(data);
 % array to store the variations between two traces
@@ -23,11 +24,19 @@ truedif=zeros(1,numfiles);
 % array to hold the intrinsic variance of the dataset
 normvar=zeros(1,numfiles);
 
+%Get span of both sweeps
+span1=tones(5)-tones(2);
+span2=tones(9)-tones(6);
+    
 %% Calculation
 for i=1:numfiles-1
     current=ReadLeCroyBinaryWaveform(data(i).name);
     firstC=current.y(tones(2):tones(5));
-    secondC=current.y(tones(6):tones(9));
+    secondC=current.y(tones(6):tones(9)+(span1-span2)); %adjust small variations (order 1 differences in span)
+    maxval=max([max(firstC) max(secondC)]);
+    firstC=firstC/maxval;
+    secondC=secondC/maxval;
+    
     truedif(i)=sum((firstC-secondC).^2)...
         /length(firstC);
     stopval=500; %arbitrary length of array to sample variance
