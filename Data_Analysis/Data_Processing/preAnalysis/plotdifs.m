@@ -18,7 +18,7 @@ cd (userpath)
 %% Get list of folders and sort them
 files    = dir; %lists all the file and folder names
 %removes the 'current' and 'parent' directory folders
-files    = files(~ismember({files.name},{'.','..'})); 
+files    = files(~ismember({files.name},{'.','..','CombineFilesfull'})); 
 dirFlags = [files.isdir]; %flags each entry as a folder (boolean)
 folders  = files(dirFlags); %only store the folders
 %sort folders currently by numerical value
