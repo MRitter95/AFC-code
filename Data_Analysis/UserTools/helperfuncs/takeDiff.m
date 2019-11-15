@@ -39,6 +39,10 @@ normvar=zeros(1,numfiles-1);
 for i=1:numfiles-1
     current=ReadLeCroyBinaryWaveform(data(i).name);
     next=ReadLeCroyBinaryWaveform(data(i+1).name);
+    maxcurrent=max(current.y(start:stop));
+    maxnext=max(next.y(start:stop));
+    current.y=current.y/maxcurrent;
+    next.y=next.y/maxnext;
     last=ReadLeCroyBinaryWaveform(data(end).name);
     truedif(i)=sum((next.y(start:stop)-current.y(start:stop)).^2)...
         /length(current.x(start:stop));
