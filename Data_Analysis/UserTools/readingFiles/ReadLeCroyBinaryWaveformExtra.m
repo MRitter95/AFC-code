@@ -23,6 +23,8 @@
 % (seen on a WavePro 7 Zi).  Output will be a MxN matrix, where M is the
 % number of points in each segment, and N is the number of segments.  X
 % vector also update to include offset of each trigger.
+% Slightly modified by Martin Ritter
+% Returns scaling factors for ADC conversion and sample to time conversion
 
 function [wave, HORIZ_INTERVAL, HORIZ_OFFSET, VERTICAL_GAIN, VERTICAL_OFFSET] =ReadLeCroyBinaryWaveformExtra(fn)
 %%
