@@ -29,7 +29,7 @@ plotindex=1;
 figure(fcount)
 for i=1:length(folders)
     datafolder=folders(i).name;
-    ints=difechoes(datafolder);
+    ints=diffechoes(datafolder);
     tooth=str2double(datafolder)/1e+6;
     
     if(mod(i,numx*numy)==1 && i~=1)

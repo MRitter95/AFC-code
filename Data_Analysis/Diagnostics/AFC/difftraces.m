@@ -1,7 +1,7 @@
 %This function generates an array of the variations between two consecutive
 %traces
 
-function [truedif, diff_from_last, diffs, normvar] = takeDiff(data, start, stop)
+function [truedif, diff_from_last, diffs, normvar] = difftraces(data, start, stop)
 
 %% Error checking
 % If empty set (i.e. invalid folder or something like that), return default values

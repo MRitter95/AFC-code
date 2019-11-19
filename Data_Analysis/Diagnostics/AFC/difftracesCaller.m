@@ -8,7 +8,7 @@
 %plotting
 
 
-function [] = plotdifs(userpath, expdate)
+function [] = difftracesCaller(userpath, expdate)
 
 %% Get user input if input parameters are not provided
 if(nargin<1)
