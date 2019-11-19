@@ -1,71 +1,81 @@
 %This program takes in data files from the RSA and the Oscope and produces
 %the averaged waveform or spectrum. It also saves all the data to bin files
 %in the parent directory for further processing. It will process each
-%directory (i.e. modulation frequency) in parallel (max is 4 I think).
+%directory (i.e. modulation frequency) in parallel
+%Input parameters are not required, code will prompt if no values are given
+%Input: exptype is a string (afc or echo) describing the experiment
+%Input: userpath is the path to the data to be processed
+%Input: RSArange is an array containing the end frequency of the 
+%RSA settings (typically 300 to 600 MHz)
+%Input: numtoskip is the number of traces to skip before starting to combine
+%the files. This is to improve the final results. Number can be determined
+%from the difftracesCaller output
+%Output: none, saves the combined files to binary files for later analysis
 
 function [] = combineFiles(exptype, userpath, RSArange, numtoskip)
 
+%% Get user input if input parameters are not specified
 if(nargin<1)
     disp(['Using the current directory: ' pwd ])
-    pathOK=input('Is that ok (Y/N)?','s');
-    if(strcmp(pathOK,'Y')||strcmp(pathOK,'y'))
-        userpath=pwd;
+    pathOK       = input('Is that ok (Y/N)?','s');
+    if(strcmp(pathOK,'Y') || strcmp(pathOK,'y'))
+        userpath = pwd;
     else
-        userpath=input('Please enter the desired directory','s');
+        userpath = input('Please enter the desired directory','s');
     end
-    exptype=input('afc or echo data?','s');
-    RSArange=input('What was the RSA range in MHz?');
-    numtoskip=input('How many traces should be skipped?');
+    exptype      = input('afc or echo data?','s');
+    RSArange     = input('What was the RSA range in MHz?');
+    numtoskip    = input('How many traces should be skipped?');
 end
 disp(['Processing data from: ' userpath])
 cd (userpath)
 
 %% Getting all the folder names from the directory
 files=dir; %lists all the file and folder names
-files=files(~ismember({files.name},{'.','..'})); %removes the 'current' and 'parent' directory folders
+%removes the 'current' and 'parent' directory folders
+files=files(~ismember({files.name},{'.','..'})); 
 dirFlags=[files.isdir]; %flags each entry as a folder (boolean)
 folders=files(dirFlags); %only store the folders
-
+%sort folders by numerical value
 [~, idx]=sort_nat({folders.name});
 folders=folders(idx); %sorts the folders by frequency
 
 %% Loops through all the folders and processes the data
 parfor k=1:length(folders)
+
     datafolder=folders(k).name; %get name of current folder
     disp(['Current data folder: ' datafolder])
-    %cd(datafolder); %cd into current folder where the data is stored 
     
-    %get the various datafiles
-    %ofcdat=dir('ofc*.txt'); %Optical comb
-    %rfcdat=dir('rfc*.txt'); %RF comb
-    %odatC1=dir('C1*.trc'); %AFC comb
-    %odatC3=dir('C3*.trc'); %Probe
+    filepath = fullfile(userpath, datafolder, 'ofc*.txt');
+    ofcdat   = dir(filepath);
+    filepath = fullfile(userpath, datafolder, 'rfc*.txt');
+    rfcdat   = dir(filepath);
+    filepath = fullfile(userpath, datafolder, 'C1*.trc');
+    odatC1   = dir(filepath);
+    filepath = fullfile(userpath, datafolder, 'C3*.trc');
+    odatC3   = dir(filepath);
     
-    filepath=fullfile(userpath, datafolder, 'ofc*.txt');
-    ofcdat=dir(filepath);
-    filepath=fullfile(userpath, datafolder, 'rfc*.txt');
-    rfcdat=dir(filepath);
-    filepath=fullfile(userpath, datafolder, 'C1*.trc');
-    odatC1=dir(filepath);
-    filepath=fullfile(userpath, datafolder, 'C3*.trc');
-    odatC3=dir(filepath);
-    
+    %Build full path names of the file so that we can avoid cd commands
     for i=1:length(ofcdat)
         ofcdat(i).name=fullfile(userpath, datafolder, ofcdat(i).name);
     end
+
     for i=1:length(rfcdat)
         rfcdat(i).name=fullfile(userpath, datafolder, rfcdat(i).name);
     end
+
     for i=1:length(odatC1)
         odatC1(i).name=fullfile(userpath, datafolder, odatC1(i).name);
         odatC3(i).name=fullfile(userpath, datafolder, odatC3(i).name);
     end
-    datafiles=cell(4,3); %create a cell to hold all the data
-    datafiles{1,1}=ofcdat;
-    datafiles{2,1}=rfcdat;
-    datafiles{3,1}=odatC1;
-    datafiles{4,1}=odatC3;
+
+    datafiles      = cell(4,3); %create a cell to hold all the data
+    datafiles{1,1} = ofcdat;
+    datafiles{2,1} = rfcdat;
+    datafiles{3,1} = odatC1;
+    datafiles{4,1} = odatC3;
     
+    %Average the traces
     for i=1:4
         [xaxis,yaxis, hint, hoff, ygain, yoff]=doAVG(datafiles{i,1}, RSArange, numtoskip); %average all the traces corresponding to a given dataset
         if (i>2)
@@ -75,25 +85,31 @@ parfor k=1:length(folders)
             datafiles{i,2}=[xaxis;yaxis]; %store data in corresponding cell
         end
     end
-    %cd .. %move up a directory to store files
+
     tooth=str2double(datafolder)/1e+6; %extract the tooth spacing for filenaming
     types={'ofc','rfc',exptype,'probe'};
     fileID=zeros(1,4);
-    %Store a .txt file for each dataset
+    %Store a .bin file for each dataset
     for i=1:4
-        filename=[types{i} num2str(tooth,'%0.1f') 'MHz.bin']; %creates filenames
-        arrsize=size(datafiles{i,2});
+        filename = [types{i} num2str(tooth,'%0.1f') 'MHz.bin']; %creates filenames
+        arrsize  = size(datafiles{i,2}); %check for empty files
+
         if(arrsize(2)==1)
             disp('No data saved, continuing');
             continue;
         end
+
         disp(['Saving: ' filename])
+
         fileID(i)=fopen(filename,'W'); %open file to write ('W' is faster apparently than'w')
         if(i<3)
-            fwrite(fileID(i),datafiles{i,2},'float'); %write the [x;y] array to file in binary format to save some space
+            %write the [x;y] array to file in binary format to save some space
+            fwrite(fileID(i),datafiles{i,2},'float'); 
         else
-            fwrite(fileID(i),datafiles{i,3},'float'); %write the various offsets and scaling factors to file
-            fwrite(fileID(i),datafiles{i,2},'int16'); %only write y data to file to save space (x can be regenerated)
+            %write the various offsets and scaling factors to file 
+            fwrite(fileID(i),datafiles{i,3},'float'); 
+            %only write y data to file to save space (x can be regenerated)
+            fwrite(fileID(i),datafiles{i,2},'int16'); 
         end
         fclose(fileID(i)); %close file
     end
