@@ -1,0 +1,5 @@
+# Scripts in folder
+- combineFiles: runs through all the frequency folders from an experimental run and produces averaged files for each frequency. By default it will make 4 types of files: afc (atomic frequency comb), probe, ofc (optical frequency comb), and rfc (radio frequency comb). The files will be saved as afcxxMHz.bin (where xx is the frequency in MHz. In the RSA traces (ofc/ rfc) the binray file is just an averaging of the traces and storage in binary format. For the LecRoy traces, the final binary only contains the ADC values and the correct conversion factors to turn those values back into volts as well as build a time axis. The readbin routine applies the conversion factors.
+- superCombine: calling script for combineFiles that will run the code over multiple folders. For example, in an experiment with both up and down sweeps of modulation frequency, combineFiles is called on the 0/ folder then the 1/ folder. Nothing special here, can be modified to fit other folder structures 
+
+

@@ -2,6 +2,7 @@
 %Input: inputfile, .txt file with RSA data
 %Input: startfreq, starting frequency of RSA sweep
 %Input: endfreq, ending frequency of RSA sweep
+%Output: none, draws figure to screen
 
 function [] = specDraw(inputfile, startfreq, endfreq)
 
