@@ -17,3 +17,5 @@ Code is organized as follows:
     - DataFileCreator\_MR.vi: VI used to automatically generate names for files with date time information
 - Modeling: Hodgepodge of various simulation codes, needs some cleaning up
 
+
+Testing new git setup on lab computer
