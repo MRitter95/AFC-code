@@ -3,11 +3,31 @@ void setup() {
   Serial.begin(9600);
 }
 
+//set timings
+const int readPeriod= 100; //read every second
+const int numToAvg= 5.0; //every 5 data points, average and print result.
+
+int j= 0;
+float buf[numToAvg];
+float sum= 0.0;
+
 void loop() {
   // read the input on analog pin 0:
-  int sensorValue = analogRead(A0);
-  // Convert the analog reading (which goes from 0 - 1023) to a voltage (0 - 5V):
-  float voltage = sensorValue * (5.0 / 1023.0);
-  // print out the value you read:
-  Serial.println(voltage);
+  float sensorValue = analogRead(A0)*5.0/1024.0;
+  buf[j]= sensorValue;
+
+  // reset counter, print to serial port
+  j= j+1;
+  if(j==numToAvg){
+    j= 0;
+    sum= 0;
+    for(int k=0;k<numToAvg;k++){
+      sum+= buf[k];
+    }
+    
+    Serial.println(sum/numToAvg);
+  }
+
+  delay(readPeriod);
+  
 }

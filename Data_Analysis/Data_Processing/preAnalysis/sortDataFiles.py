@@ -27,6 +27,7 @@ target= input("Where are they going? Target folders will be identified by date m
 # by adding another loop here:
 
 os.chdir(target)
+
 # modified next line by removing os.listdir argument. this line only works if
 # current directory is TARGET. if it's not, including the os.listdir() argument
 # will not save you. the program will run, but it will be looking in the 
@@ -73,7 +74,7 @@ files.sort(key=os.path.getmtime)
 
 # 30 seconds is a safe threshold: the time interval between consecutive scope
 # traces for the same setting is about 1 second.
-threshold= 30
+threshold= 10
 ends=[]
 for j in range(len(files)-1):
     if abs(os.path.getmtime(os.path.join(os.getcwd(),files[j]))-os.path.getmtime(os.path.join(os.getcwd(),files[j+1])))>threshold:
