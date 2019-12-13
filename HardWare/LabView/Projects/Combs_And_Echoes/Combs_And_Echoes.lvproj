@@ -1,5 +1,6 @@
 ﻿<?xml version='1.0' encoding='UTF-8'?>
 <Project Type="Project" LVVersion="16008000">
+	<Property Name="varPersistentID:{A98F54B1-4003-496D-A110-5814D37361FB}" Type="Ref">/My Computer/traceData.lvlib/td</Property>
 	<Item Name="My Computer" Type="My Computer">
 		<Property Name="server.app.propertiesEnabled" Type="Bool">true</Property>
 		<Property Name="server.control.propertiesEnabled" Type="Bool">true</Property>
@@ -13,7 +14,10 @@
 		<Item Name="getWavelengthDisp.vi" Type="VI" URL="../../../Wavemeter/getWavelengthDisp.vi"/>
 		<Item Name="getWavelengthNoDisp.vi" Type="VI" URL="../../../Wavemeter/getWavelengthNoDisp.vi"/>
 		<Item Name="measureCombs_anySet.vi" Type="VI" URL="../measureCombs_anySet.vi"/>
+		<Item Name="measureCombs_anySet_keepAgilentOpen.vi" Type="VI" URL="../measureCombs_anySet_keepAgilentOpen.vi"/>
 		<Item Name="measureEcho.vi" Type="VI" URL="../measureEcho.vi"/>
+		<Item Name="rsaGo.vi" Type="VI" URL="../../../RSA306/rsaGo.vi"/>
+		<Item Name="traceData.lvlib" Type="Library" URL="../traceData.lvlib"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="user.lib" Type="Folder">
 				<Item Name="RSA_API.dll" Type="Document" URL="/&lt;userlib&gt;/RSA_API/dll/RSA_API.dll"/>
@@ -104,6 +108,7 @@
 			<Item Name="Bits to Byte String.vi" Type="VI" URL="../../../AD9959/SubVIs/AD9959_USB.llb/Bits to Byte String.vi"/>
 			<Item Name="ChannelASF.vi" Type="VI" URL="../../../AD9959/SubVIs/ChannelASF.vi"/>
 			<Item Name="CLDevIFace.dll" Type="Document" URL="../../../Wavemeter/x32/CLDevIFace.dll"/>
+			<Item Name="closeFncGen_AS.vi" Type="VI" URL="../../../Agilent_33XXX_Series/closeFncGen_AS.vi"/>
 			<Item Name="createArray_MR1.vi" Type="VI" URL="../../../RSA306/createArray_MR1.vi"/>
 			<Item Name="DataFileCreator_MR.vi" Type="VI" URL="../../../../../Misc/DataFileCreator_MR.vi"/>
 			<Item Name="DoWrite.vi" Type="VI" URL="../../../AD9959/SubVIs/DoWrite.vi"/>
@@ -113,10 +118,13 @@
 			<Item Name="IOUpdate.vi" Type="VI" URL="../../../AD9959/SubVIs/IOUpdate.vi"/>
 			<Item Name="lvanlys.dll" Type="Document" URL="/&lt;resource&gt;/lvanlys.dll"/>
 			<Item Name="MasterReset.vi" Type="VI" URL="../../../AD9959/SubVIs/MasterReset.vi"/>
+			<Item Name="openFncGen_AS.vi" Type="VI" URL="../../../Agilent_33XXX_Series/openFncGen_AS.vi"/>
 			<Item Name="ProfilePins.vi" Type="VI" URL="../../../AD9959/SubVIs/ProfilePins.vi"/>
 			<Item Name="PulseblasterLabviewLoad_MR1.vi" Type="VI" URL="../../../Pulseblaster_LabVIEW/PulseblasterLabviewLoad_MR1.vi"/>
 			<Item Name="RSA_API.dll" Type="Document" URL="../../../../../../../../../../Tektronix/RSA_API/lib/x86/RSA_API.dll"/>
-			<Item Name="singleShot_AS1.vi" Type="VI" URL="../../../RSA306/singleShot_AS1.vi"/>
+			<Item Name="rsaStart.vi" Type="VI" URL="../../../RSA306/rsaStart.vi"/>
+			<Item Name="rsaStop.vi" Type="VI" URL="../../../RSA306/rsaStop.vi"/>
+			<Item Name="setWaveform_AS.vi" Type="VI" URL="../../../Agilent_33XXX_Series/setWaveform_AS.vi"/>
 			<Item Name="SPECTRUM Set Settings_AS2.vi" Type="VI" URL="../../../RSA306/SPECTRUM Set Settings_AS2.vi"/>
 			<Item Name="TimeInterval.vi" Type="VI" URL="../../../AD9959/SubVIs/TimeInterval.vi"/>
 			<Item Name="USB Bulk Write.vi" Type="VI" URL="../../../AD9959/SubVIs/AD9959_USB.llb/USB Bulk Write.vi"/>
