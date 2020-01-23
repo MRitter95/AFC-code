@@ -1,4 +1,5 @@
 import os
+import shutil
 
 #os.chdir('C:/Users')
 #print(os.getcwd())
@@ -24,14 +25,21 @@ ends.append(len(files)-1)
 print(ends)
 
 for j in range(len(ends)):
-    subTarget= target+"/"+str(10000+j)
-    os.mkdir(subTarget)
+#    subTarget= target+"/"+folders[j]
+    #os.mkdir(subTarget)
+    print('Now transferring set ',j+1,' of ',len(ends))
     if j==0:
         start= 0
     else:
         start= ends[j-1]+1
     for k in range(start,ends[j]+1):
-        os.rename(os.path.join(os.getcwd(),files[k]),os.path.join(subTarget,files[k]))
+#        os.rename(os.path.join(os.getcwd(),files[k]),os.path.join(subTarget,files[k]))
+        
+        shutil.copy2(os.path.join(os.getcwd(),files[k]),os.path.join(target+"/"+str(10000+j),files[k]))
+
+
+
+
 
 #for j in range(len(files)-1):
 #    if abs(os.path.getmtime(os.path.join(os.getcwd(),files[j]))-os.path.getmtime(os.path.join(os.getcwd(),files[j+1])))<30:
