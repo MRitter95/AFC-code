@@ -5,8 +5,7 @@
 %Input parameters are not required, code will prompt if no values are given
 %Input: exptype is a string (afc or echo) describing the experiment
 %Input: userpath is the path to the data to be processed
-%Input: RSArange is an array containing the end frequency of the 
-%RSA settings (typically 300 to 600 MHz)
+%Input: RSArange is the max value of the RSA (assumes start is 0)
 %Input: numtoskip is the number of traces to skip before starting to combine
 %the files. This is to improve the final results. Number can be determined
 %from the difftracesCaller output
@@ -24,7 +23,7 @@ if(nargin<1)
         userpath = input('Please enter the desired directory','s');
     end
     exptype      = input('afc or echo data?','s');
-    RSArange     = input('What was the RSA range in MHz?');
+    RSArange     = input('What was the RSA max freq (typically 300,400 or 600) in MHz?');
     numtoskip    = input('How many traces should be skipped?');
 end
 disp(['Processing data from: ' userpath])
