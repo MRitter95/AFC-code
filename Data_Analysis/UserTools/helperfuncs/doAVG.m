@@ -35,7 +35,7 @@ yoff  = 0; %y offset
 
 %disp(['Starting averaging, extension detected as: ' ext])
 
-for k=numtoskip:numfiles
+for k=numtoskip+1:numfiles
     %disp(data(k).name) %display current filename
     
     if(strcmp(ext,'.trc')) %LeCroy waveform
