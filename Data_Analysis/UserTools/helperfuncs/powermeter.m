@@ -2,7 +2,7 @@
 % Input: file, txt file containing all the readings
 % Input: numavg, number of readings per frequency setting
 % Output: freqs, array of modulation frequencies used
-% Output: avgval, array of the averaged values at each frequency
+% Output: avgval, array of the normalized and averaged values at each frequency
 
 function [freqs, avgval] = powermeter(file, numavg)
 
@@ -27,4 +27,12 @@ for i = 1:200
     avgval(i) = avgval(i)/numavg;
 end
 
+avgval = avgval/max(avgval);
+
+figure(1)
+plot(freqs, avgval)
+xlabel('Modulation Frequency (MHz)')
+ylabel('Normalized Power') 
+title({'Power in optical comb as measured by powermeter vs modulation frequency';pwd},'Interpreter','none')
+print('-f1','Powermeter', '-dpdf','-r500')
 end
