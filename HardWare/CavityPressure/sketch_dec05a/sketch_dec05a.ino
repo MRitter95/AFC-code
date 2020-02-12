@@ -5,7 +5,7 @@ void setup() {
 
 //set timings
 const int readPeriod= 100; //read every second
-const int numToAvg= 5.0; //every 5 data points, average and print result.
+const int numToAvg= 60; //every 60 data points, average and print result.
 
 int j= 0;
 float buf[numToAvg];
