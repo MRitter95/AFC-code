@@ -14,8 +14,8 @@ if(nargin<2)
     verbose = 'false';
 end
 
-threshold = 0.5e-3;        % cal. tone must not drop below this value
-pulsedur  = 1e-3;          % cal. tone is 1ms long
+threshold = 0.05;        % cal. tone must not drop below this value
+pulsedur  = 1e-5;        % cal. tone is 1ms long
 dt        = scopeData.x(2)-scopeData.x(1); % determine sampling rate of LeCroy
 width     = cast(pulsedur/dt,'int32'); % approximate width of cal. tone
 minWidth  = 0.75*width;    % tolerances on cal. tone width
@@ -24,7 +24,7 @@ maxWidth  = 1.25*width;
 toneTimes = [];            % array of cal. tone falling-edge times
 counter   = 0;             % measures widths of threshold-exceeding signals
 
-intTime   = 0.05;
+intTime   = 1.5e-4;        % time interval before first tone
 baseline  = mean(scopeData.y(1:round(intTime/dt)));
 signal    = scopeData.y-baseline;
 
