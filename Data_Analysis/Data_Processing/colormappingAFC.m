@@ -1,62 +1,50 @@
-%This function generates a colormap plot of the echoes. The intensity/
-%brightness on the colormap indicates the relative efficiency of storage at
-%that frequency. The code expects a configuration file containing the peak
-%finding parameters (prominence and min distance) and the experimental
-%parameters (start and stop frequency, sweeprate etc.). If no path is
-%specified, the code will use the current directory to find all the files
-%(currently the config file is one folder up)
-%Input: config, file containing peakfinding and sweep parameters
+%This function does all analysis of AFC data. If no inputs are provided, it
+%will ask the user for file locations.
+
+%Input: config.mat, file containing experimental and analysis parameters
 %Input: userpath, path to .bin files
 %Input: savefigs, boolean for user to speficy whether figures should be saved
 %Input: plotprobes, boolean controlling if the probes are plotted on the combs
-%Output: none, saves figure in pdf/ .fig format if savefigs is true
+%Output: none, saves figure in pdf/fig format if savefigs is true
 
-function [] = colormappingAFC(config, userpath, savefigs, plotprobes)
+function [] = colormappingAFC()
 
 %% User input
 
 %Parameters for specific run
-if(nargin<1)
-    disp(['Using the current directory: ' pwd ])
-    pathOK         = input('Is that ok (Y/N)?','s');
-    if(strcmp(pathOK,'Y') || strcmp(pathOK,'y'))
-        userpath   = pwd;
-    else
-        userpath   = input('Please enter the desired directory','s');
-    end
-    config         = input('Path to config file','s');
-    ufigs          = input('Savefigs? (Y/N)','s');
-    if(strcmp(ufigs,'Y') || strcmp(ufigs,'y'))
-        savefigs   = true;
-    else
-        savefigs   = false;
-    end
-    uprobes        = input('Plot probes? (Y/N)','s');
-    if(strcmp(uprobes,'Y') || strcmp(uprobes,'y'))
-        plotprobes = true;
-    else
-        plotprobes = false;
-    end
+disp(['Using .bin files in directory: ' pwd ])
+pathOK         = input('Is that ok (Y/N)?','s');
+if(strcmp(pathOK,'Y') || strcmp(pathOK,'y'))
+    userpath   = pwd;
+else
+    userpath   = input('Please enter directory with .bin files: ','s');
+    cd (userpath);
 end
+
+ufigs          = input('Savefigs? (Y/N)','s');
+if(strcmp(ufigs,'Y') || strcmp(ufigs,'y'))
+    savefigs   = true;
+else
+    savefigs   = false;
+end
+
+uprobes        = input('Plot probes? (Y/N)','s');
+if(strcmp(uprobes,'Y') || strcmp(uprobes,'y'))
+    plotprobes = true;
+else
+    plotprobes = false;
+end
+
 disp(['Processing data from: ' userpath])
-cd (userpath)
 
 %% Configuration
-fileID     = fopen(config);
-if(fileID == -1)
-    error('unable to open file');
+if(~isfile('config.mat'))
+    disp('No config file in this directory. Let`s make a new one.');
+    makeConfigFile;
 end
-config     = textscan(fileID,'%s%f');
-params     = config{1};
-vals       = config{2};
-step       = vals(1); %vertical spacing between consecutive traces
-minprom    = vals(2); %minimum prominence of a peak
-mindist    = vals(3); %minimum distance between peaks
-startfreq  = vals(4); %start frequency for comb
-endfreq    = vals(5); %end frequency for comb
-sweep1     = [vals(6) vals(7)]; %freq range of first sweep
-sweep2     = [vals(8) vals(9)]; %freq range for second seep
-sweepspeed = vals(10); %sweep speed in MHz/s
+
+disp(['Loading ',pwd,'\config.mat']);
+load config.mat;
 
 %% Filenames
 
