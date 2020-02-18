@@ -9,8 +9,6 @@
 
 function [] = colormappingAFC()
 
-%% User input
-
 %Parameters for specific run
 disp(['Using .bin files in directory: ' pwd ])
 pathOK         = input('Is that ok (Y/N)?','s');
@@ -67,8 +65,8 @@ timevals = zeros(1,numfiles);
 for i=1:numfiles
     %get the fourier transformed data (first two variables) and the
     %combined comb data for plotting
-    [ffreq, famp, combinedf, combineda, probe1, probe2, f1, f2]=combAnalysisDouble( ...
-        afcfiles(i).name, probefiles(i).name, sweep1, sweep2, sweepspeed);
+    [ffreq, famp, combinedf, combineda, probe1, f1]=combAnalysisN( ...
+        afcfiles(i).name, probefiles(i).name, sweep1, sweepspeed);
 
     %Get the peaks and locations of peaks in the fourier transform data for
     %visualization and later analysis
@@ -100,7 +98,7 @@ for i=1:numfiles
     hold on
     plot(combinedf, combineda+(i)*step)
     if(plotprobes)
-        plot(f1, probe1+(i)*step, f2, probe2+(i)*step);
+        plot(f1, probe1+(i)*step);
     end
     xlabel('Frequency (MHz)');
     ylabel('Modulation frequency (MHz)');
