@@ -29,10 +29,9 @@ end
 
 avgval = avgval/max(avgval);
 
-figure(1)
 plot(freqs, avgval)
 xlabel('Modulation Frequency (MHz)')
 ylabel('Normalized Power') 
-title({'Power in optical comb as measured by powermeter vs modulation frequency';pwd},'Interpreter','none')
-print('-f1','Powermeter', '-dpdf','-r500')
+title({'Relative comb power';pwd},'Interpreter','none')
+print('-f1','Comb power', '-dpdf','-r500')
 end
