@@ -152,7 +152,7 @@ end
 %Look at cumulative stored power by summing over the array rows
 echovals = echovals/max(echovals,[],'all');
 figure(3)
-imagesc(echovals)
+imshow(echovals)
 set(gca,'YDir','normal')
 oldvals  = 0:step*numfiles/40.:step*numfiles;
 newvals  = linspace(0,20,length(oldvals));
