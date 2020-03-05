@@ -75,13 +75,40 @@ parfor k=1:length(folders)
     datafiles{4,1} = odatC3;
     
     %Average the traces
-    for i=1:4
-        [xaxis,yaxis, hint, hoff, ygain, yoff]=doAVG(datafiles{i,1}, RSArange, numtoskip); %average all the traces corresponding to a given dataset
-        if (i>2)
-            datafiles{i,2}=yaxis; %only keep y data since x data is just a scaled sequential array
-            datafiles{i,3}=[hint, hoff, ygain, yoff]; %store waveform conversion data
-        else
-            datafiles{i,2}=[xaxis;yaxis]; %store data in corresponding cell
+    %for echo measurement data, we call a different averaging program for
+    %the scope traces in order to fix the few ns jitter between traces.
+    if(strcmp(exptype,'echo')||...
+                strcmp(exptype,'Echo')||...
+                    strcmp(exptype,'ECHO'))
+            for i=1:3
+                if i<3      %average RSA traces as usual
+                    [xaxis,yaxis,hint,hoff,ygain,...
+                        yoff]= doAVG(datafiles{i,1},RSArange,numtoskip);
+                    datafiles{i,2}=[xaxis;yaxis];
+                else        %average scope traces after correcting jitter
+                    [~,normAxis,echoAxis,xInt,xOff,normGain,normOff,...
+                        echoGain,echoOff]= doAVG_echo(datafiles{3,1},...
+                        datafiles{4,1},numtoskip);
+                    datafiles{3,2}= echoAxis;
+                    datafiles{4,2}= normAxis;
+                    datafiles{3,3}= [xInt,xOff,echoGain,echoOff];
+                    datafiles{4,3}= [xInt,xOff,normGain,normOff];
+                end
+            end
+            
+    %if we are looking at AFC data, the few ns jitter is not important and
+    %we average as usual.
+    else
+        for i=1:4
+            [xaxis,yaxis,hint,hoff,...
+                ygain,yoff]= doAVG(datafiles{i,1},...
+                RSArange,numtoskip); %average all traces
+            if (i>2)
+                datafiles{i,2}= yaxis; %only keep y data since x data is just a scaled sequential array
+                datafiles{i,3}= [hint, hoff, ygain, yoff]; %store waveform conversion data
+            else
+                datafiles{i,2}= [xaxis;yaxis]; %store data in corresponding cell
+            end
         end
     end
 
