@@ -26,6 +26,15 @@ end
 
 [~, ~, ext] = fileparts(data(1).name); %get extension to choose which method to use
 
+%skipping traces is only potentially necessary for the scope data, when the
+%first few traces might correspond to measuring things before the system
+%has equilibrated. the RSA traces don't involve the atoms at all, are very
+%stable, so there's never a need to skip any traces.
+if(strcmp(ext,'.txt'))
+    numtoskip= 0;
+end
+    
+    
 yaxis = 0;
 xaxis = 0;
 xint  = 1; %x time step
