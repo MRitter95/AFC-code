@@ -82,8 +82,8 @@ parfor k=1:length(folders)
                     strcmp(exptype,'ECHO'))
             for i=1:3
                 if i<3      %average RSA traces as usual
-                    [xaxis,yaxis,hint,hoff,ygain,...
-                        yoff]= doAVG(datafiles{i,1},RSArange,numtoskip);
+                    [xaxis,...
+                        yaxis,~]= doAVG(datafiles{i,1},RSArange,numtoskip);
                     datafiles{i,2}=[xaxis;yaxis];
                 else        %average scope traces after correcting jitter
                     [~,normAxis,echoAxis,xInt,xOff,normGain,normOff,...
