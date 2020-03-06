@@ -10,7 +10,7 @@
 %Output: ygain, yoff, scale factor and y offset for LeCroy amplitudes
 
 function [xaxis,normAxis,echoAxis,xInt,xOff,normGain,normOff,...
-    echoGain,echoOff] = doAVG_echo(normDat,echoDat,numtoskip)
+    echoGain,echoOff] = doAVG_echo(echoDat,normDat,numtoskip)
 
 numfiles = length(echoDat); %get number of files to process
 
@@ -25,51 +25,52 @@ if(isempty(echoDat))
     return 
 end
 
-normAxis = 0;
-xaxis = 0;
+% normAxis = 0;
+% xaxis = 0;
 xInt  = 1; %x time step
 xOff  = 0; %x offset
 normGain = 1; %y gain
 normOff  = 0; %y offset
 
 % the new part. we find the peak in each probe data set.
-offsetNorm= [];
-offsetEcho= [];
 peaks= zeros(numfiles-numtoskip,1);
 for k=numtoskip+1:numfiles
     [wave,~,~,...
         normGain,normOff]= ReadLeCroyBinaryWaveformExtra(normDat(k).name);
     
-    [pk,loc] = findpeaks(wave.y,'MinPeakDistance',1e-5);
-    blah= sortrows([pk,loc],'descend');
-    
-    peaks(k)= blah(1,2);
-    offsetNorm= [offsetNorm,wave.y];
+    if k-numtoskip == 1
+        offsetNorm= zeros(length(wave.y),numfiles-numtoskip);
+        offsetEcho= offsetNorm;
+    end
+
+    [~,peaks(k)]= max(wave.y);
+    offsetNorm(:,k-numtoskip)= wave.y; 
     
     [wave,xInt,xOff,...
         echoGain,echoOff]= ReadLeCroyBinaryWaveformExtra(echoDat(k).name);
-    offsetEcho= [offsetEcho,wave.y];
+    offsetEcho(:,k-numtoskip)= wave.y; 
     
     time= wave.x;
 end
 
 % now instead of simply averaging, we first align all the traces in time.
-alignedNorm= [zeros( max(peaks)-min(peaks),numfiles-numtoskip );...
-    zeros(size(offsetNorm))];
+alignedNorm= zeros(size(offsetNorm));
 alignedEcho= alignedNorm;
 
 for k=numtoskip+1:numfiles
-    baselineNorm= mean(offsetNorm(:,k));
-    alignedNorm(:,k)= [baselineNorm*ones( max(peaks)-peaks(k),1 );...
-        offsetNorm(:,k)];
+    baselineNorm= mean(offsetNorm(:,k-numtoskip));
+    alignedNorm(:,k-numtoskip)= [baselineNorm*...
+        ones( max(peaks)-peaks(k-numtoskip),1 );...
+        offsetNorm(1:end-max(peaks)+peaks(k-numtoskip),k-numtoskip)];
     
-    baselineEcho= mean(offsetEcho(:,k));
-    alignedEcho(:,k)= [baselineEcho*ones( max(peaks)-peaks(k),1 );...
-        offsetNorm(:,k)];
+    baselineEcho= mean(offsetEcho(:,k-numtoskip));
+    alignedEcho(:,k-numtoskip)= [baselineEcho*...
+        ones( max(peaks)-peaks(k-numtoskip),1 );...
+        offsetEcho(1:end-max(peaks)+peaks(k-numtoskip),k-numtoskip)];
 end
 
-normAxis= mean(offsetNorm,2);
-echoAxis= mean(offsetEcho,2);
+normAxis= mean(alignedNorm,2);
+echoAxis= mean(alignedEcho,2);
 
 % we have to pad the x axis as well.
 xaxis= [time',linspace(time(end),...
@@ -77,6 +78,8 @@ xaxis= [time',linspace(time(end),...
     max(peaks)-min(peaks))];
 
 %convert y values back to int16 to store more efficiently  
-normAxis= int16((normAxis'+normOff)/normGain);
-echoAxis= int16((echoAxis'+echoOff)/echoGain);
+normAxis= int16( (normOff+normAxis')/normGain );
+echoAxis= int16( (echoOff+echoAxis')/echoGain );
+
+end
  
