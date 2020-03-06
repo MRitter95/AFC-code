@@ -1,5 +1,5 @@
 
-function [ints] = difechoes (userpath)
+function [ints] = diffechoes (userpath)
 
 currentdir=pwd;
 if(nargin<1)

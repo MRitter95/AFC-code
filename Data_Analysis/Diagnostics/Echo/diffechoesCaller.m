@@ -1,4 +1,4 @@
-function [] = difechoesCaller(userpath)
+function [] = diffechoesCaller(userpath)
 
 currentdir=pwd;
 if(nargin<1)
