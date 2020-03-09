@@ -53,8 +53,13 @@ endfreq   = vals(8); %end frequency for comb
 
 %% Filenames
 
-% Get file names for the afc and probe data and sort them correctly 
-echofiles  = dir('echo*.bin');
+% Get file names for the afc and probe data and sort them correctly
+% (added the possibility that the echo files are named "afc"; I've changed
+% combineFiles.m for the case of echo data, to compensate for jitter. The
+% easiest way to run the old version of the program is to tell it that the
+% data is afc, not echo, so it does the averaging without jitter
+% compensation -- useful for comparing results with/without compensation.)
+echofiles  = [dir('echo*.bin');dir('afc*.bin')];
 [~,idx]    = sort_nat({echofiles.name});
 echofiles  = echofiles(idx);
 probefiles = dir('probe*.bin');
