@@ -11,7 +11,7 @@
 %Input: plotprobes, boolean controlling if the probes are plotted on the combs
 %Output: none, saves figure in pdf/ .fig format if savefigs is true
 
-function [] = colormappingAFC(config, userpath, savefigs, plotprobes)
+function [] = colormappingAFC_single(config, userpath, savefigs, plotprobes)
 
 %% User input
 
