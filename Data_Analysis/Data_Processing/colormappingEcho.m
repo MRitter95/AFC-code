@@ -71,6 +71,7 @@ numfiles   = length(echofiles);
 
 echovals = zeros(200,200); %array to hold all the echoes
 timevals = zeros(1,numfiles);
+markerSizes= timevals;
 
 %This for loop runs through all the files in the directory and finds
 %all the peaks in the echo data
@@ -99,20 +100,20 @@ for i=1:numfiles
     %Add all the peaks found to the echo array as well as the extracted
     %'storage' frequency (1/tstorage)
     if(~isempty(locs))
-        for a=1:length(locs)
+        for j=1:length(locs)
             %ignore peaks before ~1/20 MHz because our resolution is bad
-            xind = round(10./locs(a));%generates stored freq multiplied by 10
+            xind = round(10./locs(j));%generates stored freq multiplied by 10
             if(xind>200)
                 xind = 200; %fixes out of range issues
             end
-            echovals(xind,i) = peaks(a);
+            echovals(xind,i) = peaks(j);
         end
-        [~,im]      = max(peaks);
+        [markerSizes(i),im]      = max(peaks);
         timevals(i) = locs(im);
     end
 
     % Probe plot
-    probes=figure(1);
+    probeFig= figure(1);
     hold on
     plot(timep, ampp+(i)*stepp, locsp, peaksp+(i)*stepp, 'x');
     %Create y tick marks that show modulation frequency
@@ -126,7 +127,7 @@ for i=1:numfiles
     title({'Probe data';userpath},'Interpreter','none');
     
     %Echo plotting with peaks and hyperbolae
-    echoes=figure(2);
+    echoFig= figure(2);
     hold on
     plot(time, amp+(i)*step, locs, peaks+(i)*step, 'x');
     %Create y tick marks that show modulation frequency
@@ -174,23 +175,37 @@ pbaspect([1 1 1])
 %Plot storage time against programmed time (expect straight line)
 %Show additional harmonics of storage time to show only harmonics get stored
 figure(4)
+set(gca,'XScale','log','YScale','log');
+xlim([0.05,2]);
+ylim([0.05,2]);
+hold on
 freq = startfreq:0.1:endfreq;
 time = 1./freq;
-hold on
+
 for i=1:10
-    plot(log(time),log(i*time),log(time),log(time/i))
+    loglog(time,i*time,...
+        time,time/i,'Color',0.1*(i-1)*[1,1,1],'LineWidth',2/i);
+    
+%     plot(log(time),log(i*time),':b',...
+%         log(time),log(time/i),':b','LineWidth',4/i);
 end
-plot(log(time),log(timevals),'x')
-hline(log(cutoff),'r','Cutoff')
-xlabel('Programmed storage time (log(us))');
-ylabel('Storage time (log(us))');
+markerSizes= 0.001+300*markerSizes/max(markerSizes);
+scatter(time,timevals,markerSizes,'MarkerEdgeColor',...
+    [0,0.4470,0.7410],'LineWidth',1.5);
+hold off
+% plot(log(time),log(timevals),'*k')
+
+
+hline(cutoff,'r')
+xlabel('Programmed storage time (\mus)');
+ylabel('Emission time of largest pulse (\mus)');
 title({'Stored time vs programmed time';userpath},'Interpreter','none');
 set(gca,'TickDir','out');
 pbaspect([1 1 1])
 
 if(savefigs)
-savefig(probes,'Probes','compact') %saves comb traces
-savefig(echoes,'Echoes','compact') %saves FFT traces
+savefig(probeFig,'Probes','compact') %saves comb traces
+savefig(echoFig,'Echoes','compact') %saves FFT traces
 print('-f3','Colormap', '-dpdf','-r500','-bestfit') % saves storage time info
 print('-f4','Storage','-dpdf','-r500','-bestfit') %saves efficiency figure
 end
