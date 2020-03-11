@@ -1,6 +1,6 @@
-%Combines an arbitrary number of probe sweeps into a single comb.
+%Normalizes single probe sweep to extract AFC.
 %Takes Fourier transform of the result.
-%Returns composite comb; FFT of comb; probe sweeps (just for debugging).
+%Returns AFC; FFT of AFC; probe sweeps (just for debugging).
 
 %Input: afcfile, file name for afc data
 %Input: probefile, file name for probe data
@@ -11,14 +11,18 @@
 %Output: freqT/ ampT contains the data for the combined comb, normalized to max value
 %Output: probe(1-2)/freqaxisp(1-2) contains the probe information for plotting
 
-function [freq, amp, freqT, ampT, probe1,freqaxisp1]= ...
-    combAnalysisN(afcfile, probefile, sweep, sweepspeed)
+function [freq, amp, f, comb, sweep]= ...
+    combAnalysisN(afcfile, probefile, sweep, sweepSpeed)
 
 %% Data input
 
 %Check filetype and use correct reading function
 [~,~,ext] = fileparts(afcfile);
 disp(['Analyzing ' ext ' data'])
+
+%we read off the AFC and probe traces. the x fields for both traces are
+%identical arrays of times (so they're interchangeable). the y fields are
+%arrays of voltage readings.
 if(strcmp(ext,'.bin'))
     afc   = readbin(afcfile,'true');
     probe = readbin(probefile,'true');
@@ -29,64 +33,49 @@ end
 
 %% Initialization
 
-time  = afc.x;
-amps  = afc.y;
-ptime = probe.x;
-pamp  = probe.y;
-
-f1          = sweep(1); %Start frequency of first sweep
-% f1b         = sweep2(1); %Start frequency of second sweep
+fMin          = sweep(1); %Start frequency of first sweep
 
 %time between cal. tone falling edge and start of sweep
 frontoffset = 2e-4;
 %time between end of sweep and first cal. tone falling edge
 backoffset  = 2.1e-4;
+
 disp(['Assuming ',num2str(frontoffset),...
     ' seconds between calibration tones and sweep.']);
 disp(['Assuming ',num2str(backoffset-frontoffset),...
     '-second long calibration tones.']);
 
-deltaT      = time(2)-time(1);
+%time step between readings
+dt      = afc.x(2)-afc.x(1);
 
 %% Creating frequency axes and combining combs
 
 tones      = findTones2(probe); %get falling edges from probe data
 
-%get indices for start and edge of each probe sweep
-p1start    = tones(2)+round(frontoffset/deltaT);
-p1end      = tones(3)-round(backoffset/deltaT);
-% p2start    = tones(4)+round(frontoffset/deltaT);
-% p2end      = tones(5)-round(backoffset/deltaT);
+%get first and last indices of probe sweep; identify corresponding times
+pStart    = tones(2)+round(frontoffset/dt);
+pEnd      = tones(3)-round(backoffset/dt);
 
-amp1       = amps(p1start:p1end)-mean(amps(1:tones(1))); %low freq sweep
-% amp2       = amps(p2start:p2end)-mean(amps(1:tones(1))); %high freq sweep
-pulse1     = [ptime(p1start),ptime(p1end)];
-% pulse2     = [ptime(p2start),ptime(p2end)];
+%subset of the traces actually corresponding to the sweep
+comb      = afc.y(pStart:pEnd)-mean(afc.y(1:tones(1)));
+sweep     = probe.y(pStart:pEnd)-mean(probe.y(1:tones(1)));
+sweep     = sweep/max(sweep);
 
-probe1     = pamp(p1start:p1end)-mean(pamp(1:tones(1)));
-% probe2     = pamp(p2start:p2end)-mean(pamp(1:tones(1)));
-% normval    = max([max(probe1) max(probe2)]);
-normval    = max(probe1);
+%map time points in sweep to instantaneous frequency;
+%factor of 2 originates from double pass through AOM
+f = sweepSpeed*2*(afc.x(pStart:pEnd)-afc.x(pStart))+2*fMin;
 
-probe1     = probe1/normval;
-% probe2     = probe2/normval;
+% we have to be careful with this averaging. if it's done right away, we're
+% really taking the geometric mean of the AFC data. is that what we want?
+% maybe, since we're averaging out high-frequency noise unrelated to the
+% actual signal, so I guess that's not logarithmic...
 
-%Optional averaging of data, makes final results cleaner but cuts down on FFT range
-amp1       = avgByNs(amp1,50);
-% amp2       = avgByNs(amp2,50);
-probe1     = avgByNs(probe1,50);
-% probe2     = avgByNs(probe2,50);
+% average data: makes final results cleaner but cuts down on FFT range
+comb= avgByNs(comb,25);
+sweep= avgByNs(sweep,25);
+f= avgByNs(f,25);
 
-%Creating frequency axes, the factor originates from double passing the AOM
-freqaxisp1 = sweepspeed*2*(ptime(p1start:p1end)-pulse1(1))+2*f1;
-% freqaxisp2 = sweepspeed*2*(ptime(p2start:p2end)-pulse2(1))+2*f1b;
-
-freqaxisp1 = avgByNs(freqaxisp1,50);
-% freqaxisp2 = avgByNs(freqaxisp2,50);
-
-% [freqT,ampT] = combineCombs(freqaxisp1,amp1,freqaxisp2,amp2, probe1, probe2);
-ampT= amp1-0.1*log(probe1-min(probe1)+0.01);
-freqT= freqaxisp1;
-df           = freqT(2)-freqT(1);
-[amp, freq]  = periodogram(ampT,[],[],1./df);
+comb= comb-0.1*log(sweep-min(sweep)+0.01);
+df           = f(2)-f(1);
+[amp, freq]  = periodogram(comb,[],[],1./df);
 end
