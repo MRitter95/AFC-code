@@ -12,7 +12,7 @@
 %Output: probe(1-2)/freqaxisp(1-2) contains the probe information for plotting
 
 function [freq, amp, f, comb, sweep]= ...
-    combAnalysisN(afcfile, probefile, sweep, sweepSpeed)
+    combAnalysisN(afcfile, probefile, fMin, sweepSpeed)
 
 %% Data input
 
@@ -33,7 +33,7 @@ end
 
 %% Initialization
 
-fMin          = sweep(1); %Start frequency of first sweep
+% fMin          = sweep(1); %Start frequency of first sweep
 
 %time between cal. tone falling edge and start of sweep
 frontoffset = 2e-4;
