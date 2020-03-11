@@ -195,8 +195,8 @@ scatter(time,timevals,markerSizes,'MarkerEdgeColor',...
 hold off
 % plot(log(time),log(timevals),'*k')
 
-
-hline(cutoff,'r')
+%the plot view coincides with the cutoff, so no need to include line.
+%hline(cutoff,'r')
 xlabel('Programmed storage time (\mus)');
 ylabel('Emission time of largest pulse (\mus)');
 title({'Stored time vs programmed time';userpath},'Interpreter','none');
