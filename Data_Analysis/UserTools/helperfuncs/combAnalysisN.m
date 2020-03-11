@@ -59,23 +59,23 @@ pEnd      = tones(3)-round(backoffset/dt);
 %subset of the traces actually corresponding to the sweep
 comb      = afc.y(pStart:pEnd)-mean(afc.y(1:tones(1)));
 sweep     = probe.y(pStart:pEnd)-mean(probe.y(1:tones(1)));
-sweep     = sweep/max(sweep);
+sweep     = sweep/max(sweep);       %normalize
+sweep     = sweep-min(sweep)+0.01;  %stay positive
 
-%map time points in sweep to instantaneous frequency;
-%factor of 2 originates from double pass through AOM
+%map time to instantaneous frequency; factor of 2 from AOM double pass
 f = sweepSpeed*2*(afc.x(pStart:pEnd)-afc.x(pStart))+2*fMin;
-
-% we have to be careful with this averaging. if it's done right away, we're
-% really taking the geometric mean of the AFC data. is that what we want?
-% maybe, since we're averaging out high-frequency noise unrelated to the
-% actual signal, so I guess that's not logarithmic...
 
 % average data: makes final results cleaner but cuts down on FFT range
 comb= avgByNs(comb,25);
 sweep= avgByNs(sweep,25);
 f= avgByNs(f,25);
+% we have to be careful with this averaging. if it's done right away, we're
+% really taking the geometric mean of the AFC data. is that what we want?
+% maybe, since we're averaging out high-frequency noise unrelated to the
+% actual signal, so I guess that's not logarithmic...
 
-comb= comb-0.1*log(sweep-min(sweep)+0.01);
+%our amplifier's V vs. log(I) has slope 0.1.
+comb= comb-0.1*log(sweep);
 df           = f(2)-f(1);
-[amp, freq]  = periodogram(comb,[],[],1./df);
+[amp, freq]  = periodogram(exp(comb/0.1),[],[],1./df);
 end
