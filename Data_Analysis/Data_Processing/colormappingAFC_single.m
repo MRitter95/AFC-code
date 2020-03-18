@@ -11,7 +11,8 @@
 %Input: plotprobes, boolean controlling if the probes are plotted on the combs
 %Output: none, saves figure in pdf/ .fig format if savefigs is true
 
-function [] = colormappingAFC_single(config, userpath, savefigs, plotprobes)
+function [time,timevals2,markerSizes2] = colormappingAFC_single(config,...
+    userpath, saveFigs, saveTextTraces, plotprobes)
 
 %% User input
 
@@ -25,12 +26,18 @@ if(nargin<1)
         userpath   = input('Please enter the desired directory','s');
     end
     config         = input('Path to config file','s');
-    ufigs          = input('Savefigs? (Y/N)','s');
+    ufigs          = input('Save figures and pdfs? (Y/N)','s');
     if(strcmp(ufigs,'Y') || strcmp(ufigs,'y'))
-        savefigs   = true;
+        saveFigs   = true;
     else
-        savefigs   = false;
+        saveFigs   = false;
     end
+    utraces        = input('Save combs in text files? (Y/N)','s');
+    if(strcmp(utraces,'Y') || strcmp(utraces,'y'))
+        saveTextTraces   = true;
+    else
+        saveTextTraces   = false;
+    end 
     uprobes        = input('Plot probes? (Y/N)','s');
     if(strcmp(uprobes,'Y') || strcmp(uprobes,'y'))
         plotprobes = true;
@@ -41,7 +48,7 @@ end
 disp(['Processing data from: ' userpath])
 cd (userpath)
 
-%% Configuration
+%%Configuration
 fileID     = fopen(config);
 if(fileID == -1)
     error('unable to open file');
@@ -54,10 +61,10 @@ minprom    = vals(2); %minimum prominence of a peak
 mindist    = vals(3); %minimum distance between peaks
 startfreq  = vals(4); %start frequency for comb
 endfreq    = vals(5); %end frequency for comb
-sweep1     = [vals(6) vals(7)]; %freq range of first sweep
+sweepRange     = [vals(6) vals(7)]; %freq range of first sweep
 % sweep2     = [vals(8) vals(9)]; %freq range for second seep
 % sweepspeed = vals(10); %sweep speed in MHz/s
-sweepspeed= vals(8);
+sweepSpeed= vals(8);
 %% Filenames
 
 % Get file names for the afc and probe data and sort them correctly 
@@ -70,18 +77,30 @@ probefiles = probefiles(idx);
 numfiles   = length(afcfiles);
 
 %% Analysis
-
+%variables to hold processed data for a delta-function input
 echovals = zeros(200,200); %array to hold all the echoes
 timevals = zeros(1,numfiles);
+markerSizes= timevals;
+
+%second set to handle the real pulse
+echovals2 = zeros(200,200); 
+timevals2 = zeros(1,numfiles);
+markerSizes2= timevals;
 
 %This for loop runs through all the files in the directory and produces
 %combined combs as well as the fourier transform of the comb
 for i=1:numfiles
     %get the fourier transformed data (first two variables) and the
     %combined comb data for plotting
-    [ffreq, famp, combinedf, combineda, probe1, f1]=combAnalysisN( ...
-        afcfiles(i).name, probefiles(i).name, sweep1, sweepspeed);
+    [ffreq, famp, f, AFC, probe]= combAnalysisN( ...
+        afcfiles(i).name, probefiles(i).name, sweepRange(1), sweepSpeed);
 
+    if(saveTextTraces)
+        txtFile= [userpath,...
+            '\textFiles\afc', num2str(i/10,'%0.1f'), 'MHz.txt'];
+        writematrix([f,AFC],txtFile);
+    end
+    
     %Get the peaks and locations of peaks in the fourier transform data for
     %visualization and later analysis
     %ignore peaks before 1/20 MHz because our resolution is bad
@@ -93,30 +112,71 @@ for i=1:numfiles
     %Add all the peaks found to the echo array as well as the extracted
     %'storage' frequency (1/tstorage)
     if(~isempty(locs))
-        for a=1:length(locs)
-            if(locs(a)>10.)
+        for j=1:length(locs)
+            if(locs(j)>10.)
                 continue;
             end
-            xind = round(10./locs(a));%generates stored freq multiplied by 10
+            xind = round(10./locs(j));%generates stored freq *10
             if(xind > 200)
                 xind = 200; %fixes out of range issues
             end
-            echovals(xind,i) = peaks(a);
+            echovals(xind,i) = peaks(j);
         end
-        [~,im]      = max(peaks);
+        [markerSizes(i),im]      = max(peaks);
         timevals(i) = locs(im);
     end
     
+    %we can improve this analysis. the above gives the storage of a
+    %delta-function input pulse. here we do the same thing again for the
+    %a 20-ns Gaussian (to do: replace with measured pulse). instead of
+    %looking directly at FFT of AFC, first convolute it with time-domain
+    %pulse.
+    k=1;
+    conv= zeros(size(ffreq));
+    while ffreq(k)<10+0.02   %stop convolution at 10us + pulsewidth.
+        
+        %replace this stuff with the real pulse
+        sig= 0.00425;
+        pulse= sig*sqrt(2*pi)*exp(-((ffreq-ffreq(k))/(sqrt(2)*sig)).^2);
+%         %flip pulse for convolution (not necessary for Gaussian)
+%         pulse= fliplr(pulse')';
+
+        conv(k)= sum(pulse.*famp);
+        k= k+1;
+    end
+%%%%%%%%%%%%%%%%%
+    %we proceed to locate peaks in conv exactly the same way as for famp.
+    [peaks2,locs2] = findpeaks(conv(startind:end), ffreq(startind:end),...
+        'MinPeakProminence',minprom, 'MinPeakDistance', mindist);
+
+    %Add all the peaks found to the echo array as well as the extracted
+    %'storage' frequency (1/tstorage)
+    if(~isempty(locs2))
+        for j=1:length(locs2)
+            if(locs2(j)>10.)
+                continue;
+            end
+            xind = round(10./locs2(j));%generates stored freq *10
+            if(xind > 200)
+                xind = 200; %fixes out of range issues
+            end
+            echovals2(xind,i) = peaks2(j);
+        end
+        [markerSizes2(i),im]      = max(peaks2);
+        timevals2(i) = locs2(im);
+    end
+%%%%%%%%%%%%%%%%%
+    
     %Plotting the combined combs
-    combs = figure(1);
+    combFig = figure(1);
     hold on
-    plot(combinedf, combineda+(i)*step)
+    plot(f, AFC+(i)*step)
     if(plotprobes)
-        plot(f1, probe1+(i)*step);
+        plot(f, probe+(i)*step);
     end
     xlabel('Frequency (MHz)');
     ylabel('Modulation frequency (MHz)');
-    title({'Comb data';userpath},'Interpreter','none');
+    title({'Comb data';userpath},'Interpreter','tex');
     %create y-tick marks that show modulation frequency instead of some
     %arbitrary amplitude
     oldvals=0:step*numfiles/40:step*numfiles; 
@@ -127,12 +187,12 @@ for i=1:numfiles
     set(gca,'TickDir','out');
 
     % Echo plotting with peaks and hyperbolae
-    combsfft = figure(2);
+    combsfftFig = figure(2);
     hold on
     plot(ffreq, famp+(i)*step, locs, peaks+(i)*step, 'x');
-    xlabel('Time (us)');
+    xlabel('Time (\mus)');
     ylabel('Modulation frequency (MHz)');
-    title({'FT of comb data';userpath},'Interpreter','none');
+    title({'FT of comb data';userpath},'Interpreter','tex');
     %Create y-tick marks that show modulation frequency
     oldvals=0:step*numfiles/40:step*numfiles;
     newvals=linspace(0,20,length(oldvals));
@@ -141,6 +201,21 @@ for i=1:numfiles
     set(gca,'YTickLabel', newvals);
     set(gca,'TickDir','out');
 
+    % Echo plotting with peaks and hyperbolae
+    echoSim = figure(3);
+    hold on
+    plot(ffreq, conv+(i)*step, locs, peaks+(i)*step, 'x');
+    xlabel('Time (\mus)');
+    ylabel('Modulation frequency (MHz)');
+    title({'Comb FT convoluted with pulse';userpath},'Interpreter','tex');
+    %Create y-tick marks that show modulation frequency
+    oldvals=0:step*numfiles/40:step*numfiles;
+    newvals=linspace(0,20,length(oldvals));
+    set(gca,'XLim', [0 10]);
+    set(gca,'YTick', oldvals);
+    set(gca,'YTickLabel', newvals);
+    set(gca,'TickDir','out');
+    
     % Update user about current frequency
     disp([num2str(i./10) ' MHz']);
 end
@@ -157,9 +232,9 @@ end
 
 %Build color map of where the echoes occur in frequency space
 %Look at cumulative stored power by summing over the array rows
-figure(3)
+figure(4)
 echovals=echovals/max(echovals,[],'all');
-imshow(echovals)
+imshow(1-echovals)
 set(gca,'YDir','normal')
 oldvals=0:20:200;
 newvals=linspace(0,20,length(oldvals));
@@ -170,31 +245,66 @@ set(gca,'YTickLabel', newvals);
 set(gca,'TickDir','out');
 xlabel('Modulation frequency (MHz)');
 ylabel('Storage frequency (MHz)');
-title({'AFC Stored frequency vs programmed frequency';userpath},'Interpreter','none');
+title({'AFC Stored frequency vs programmed frequency';userpath},'Interpreter','tex');
 pbaspect([1 1 1])
 
 %Show the main storage time versus the programmed time (expect 
 %times to lie on harmonics of 1/f
-figure(4)
+figure(5)
+set(gca,'XScale','log','YScale','log');
+xlim([0.05,2]);
+ylim([0.05,2]);
+hold on
 freq = startfreq:0.1:endfreq; 
 time = 1./freq;
-hold on
-for i=1:10
-    plot(log(time),log(i*time),log(time),log(time/i))
-end
-plot(log(time),log(timevals),'x')
-pbaspect([1 1 1])
-hline(log(cutoff),'r','Cutoff')
-xlabel('Programmed storage time (log(us))');
-ylabel('Storage time (log(us))');
-title({'AFC Stored time vs programmed time';userpath},'Interpreter','none');
-set(gca,'TickDir','out');
 
-if(savefigs)
-savefig(combs,'Combs','compact') %saves comb traces
-savefig(combsfft,'AFCEchoes','compact') %saves FFT traces
-print('-f3','Colormap', '-dpdf','-r500','-bestfit') % saves storage time info
-print('-f4','Storage','-dpdf','-r500','-bestfit') %saves efficiency figure
+for i=1:10
+    loglog(time,i*time,...
+        time,time/i,'Color',0.1*(i-1)*[1,1,1],'LineWidth',2/i);
+end
+
+markerSizes= 0.001+300*markerSizes/max(markerSizes);
+scatter(time,timevals,markerSizes,'MarkerEdgeColor',...
+    [0,0.4470,0.7410],'LineWidth',1.5);
+hold off
+
+xlabel('Optical comb inverse tooth spacing (\mus)');
+ylabel('AFC storage time (\mus)');
+title({'Storage time for a \delta-pulse';userpath},'Interpreter','tex');
+set(gca,'TickDir','out');
+pbaspect([1 1 1])
+
+%Repeat efficiency plot, considering input pulse
+figure(6)
+set(gca,'XScale','log','YScale','log');
+xlim([0.05,2]);
+ylim([0.05,2]);
+hold on
+
+for i=1:10
+    loglog(time,i*time,...
+        time,time/i,'Color',0.1*(i-1)*[1,1,1],'LineWidth',2/i);
+end
+
+markerSizes2= 0.001+300*markerSizes2/max(markerSizes2);
+scatter(time,timevals2,markerSizes2,'MarkerEdgeColor',...
+    [0,0.4470,0.7410],'LineWidth',1.5);
+hold off
+
+xlabel('Optical comb inverse tooth spacing (\mus)');
+ylabel('AFC storage time (\mus)');
+title({'Storage time for real input pulse';userpath},'Interpreter','tex');
+set(gca,'TickDir','out');
+pbaspect([1 1 1])
+
+if(saveFigs)
+savefig(combFig,'combs','compact') %saves comb traces
+savefig(combsfftFig,'deltaEchoes','compact') %saves FFT traces
+savefig(echoSim,'pulseEchoes','compact') %saves FFT traces
+print('-f4','colormap', '-dpdf','-r500','-bestfit') % saves storage time info
+print('-f5','idealStorage','-dpdf','-r500','-bestfit') %saves efficiency figure
+print('-f6','expectedStorage','-dpdf','-r500','-bestfit') %saves efficiency figure
+
 end
 
 end
