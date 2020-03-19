@@ -112,12 +112,12 @@ parfor k=1:length(folders)
         end
     end
 
-    tooth=str2double(datafolder)/1e+6; %extract the tooth spacing for filenaming
+%     tooth=str2double(datafolder)/1e+6; %extract the tooth spacing for filenaming
     types={'ofc','rfc',exptype,'probe'};
     fileID=zeros(1,4);
     %Store a .bin file for each dataset
     for i=1:4
-        filename = [types{i} num2str(tooth,'%0.1f') 'MHz.bin']; %creates filenames
+        filename = [types{i} num2str(datafolder,'%d') 'Hz.bin']; %creates filenames
         arrsize  = size(datafiles{i,2}); %check for empty files
 
         if(arrsize(2)==1)
