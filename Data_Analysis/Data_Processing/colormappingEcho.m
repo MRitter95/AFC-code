@@ -10,7 +10,7 @@
 %Input: savefigs, boolean determining if figures are saved
 %Output: none, saves figures in pdf/ .fig format if savefigs is true
 
-function [echovals] = colormappingEcho(config, userpath, savefigs)
+function [time,timevals,markerSizes,echovals] = colormappingEcho(config, userpath, savefigs)
 
 %% User input
 
