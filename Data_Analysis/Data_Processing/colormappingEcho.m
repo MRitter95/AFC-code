@@ -10,7 +10,7 @@
 %Input: savefigs, boolean determining if figures are saved
 %Output: none, saves figures in pdf/ .fig format if savefigs is true
 
-function [time,timevals,markerSizes,echovals] = colormappingEcho(config, userpath, savefigs)
+function [freq,timevals,markerSizes,echovals] = colormappingEcho(config, userpath, savefigs)
 
 %% User input
 
@@ -42,7 +42,8 @@ end
 config = textscan(fileID,'%s%f');
 params    = config{1};
 vals      = config{2};
-step      = vals(1); %vertical spacing between consecutive traces
+% step      = vals(1); %vertical spacing between consecutive traces
+step= 3;
 minprom   = vals(2); %minimum prominence of a peak
 mindist   = vals(3); %minimum distance between peaks
 stepp     = vals(4); %vertical spacing between consecutive traces
@@ -77,17 +78,17 @@ markerSizes= timevals;
 %all the peaks in the echo data
 for i=1:numfiles
     echo  = readbin(echofiles(i).name(),'true');
-    time  = avgByNs(echo.x*1E6,100);
-    amp   = avgByNs(echo.y,100);
+    time  = avgByNs(echo.x*1E6,25);
+    amp   = avgByNs(echo.y,25);
     
     probe = readbin(probefiles(i).name(),'true');
-    timep = avgByNs(probe.x*1E6,100);
-    ampp  = avgByNs(probe.y,100);
+    timep = avgByNs(probe.x*1E6,25);
+    ampp  = avgByNs(probe.y,25);
     %find peaks in probe data (sets the '0' point for storage time)
     [peaksp,locsp] = findpeaks(ampp, timep, 'MinPeakProminence', minpromp, ...
         'MinPeakDistance', mindistp);
     
-    time     = time  - locsp(1);
+    time     = time  - locsp(1)-0.018;
     timep    = timep - locsp(1);
     locsp    = locsp - locsp(1);
     cutoff   = 0.07; %Use cutoff to reduce noise in data, storage pulse leaks out until 0.07us
@@ -112,11 +113,11 @@ for i=1:numfiles
         timevals(i) = locs(im);
     end
 
-    % Probe plot
+%     Probe plot
     probeFig= figure(1);
     hold on
     plot(timep, ampp+(i)*stepp, locsp, peaksp+(i)*stepp, 'x');
-    %Create y tick marks that show modulation frequency
+%     Create y tick marks that show modulation frequency
     oldvals=0:stepp*numfiles/40.:stepp*numfiles;
     newvals=linspace(0,20,length(oldvals));
     set(gca,'XLim', [0 10]);
@@ -125,12 +126,12 @@ for i=1:numfiles
     xlabel('Time (us)');
     ylabel('Modulation frequency (MHz)');
     title({'Probe data';userpath},'Interpreter','none');
-    
-    %Echo plotting with peaks and hyperbolae
+%     
+%     Echo plotting with peaks and hyperbolae
     echoFig= figure(2);
     hold on
     plot(time, amp+(i)*step, locs, peaks+(i)*step, 'x');
-    %Create y tick marks that show modulation frequency
+%     Create y tick marks that show modulation frequency
     oldvals=0:step*numfiles/40.:step*numfiles;
     newvals=linspace(0,20,length(oldvals));
     set(gca,'XLim', [0 10]);
@@ -140,19 +141,19 @@ for i=1:numfiles
     ylabel('Modulation frequency (MHz)');
     title({'Echo data';userpath},'Interpreter','none');
    
-    % Update user on current frequency
+%     Update user on current frequency
     disp([num2str(i./10) ' MHz']);
 end
 
 
-%Produce the theoretical curves for where the peaks should be (1/f curves
-%since we are essentially seeing an echo here)
-
-fs      = linspace(startfreq,endfreq,numfiles);
-heights = step:step:step*numfiles;
-for i=1:0.5:10
-    plot(i./fs,heights,1./(i*fs),heights)
-end
+% %Produce the theoretical curves for where the peaks should be (1/f curves
+% %since we are essentially seeing an echo here)
+% 
+% fs      = linspace(startfreq,endfreq,numfiles);
+% heights = step:step:step*numfiles;
+% for i=1:0.5:10
+%     plot(i./fs,heights,1./(i*fs),heights)
+% end
 
 %Build color map of where the echoes occur in frequency space
 %Look at cumulative stored power by summing over the array rows
@@ -160,12 +161,37 @@ echovals = echovals/max(echovals,[],'all');
 figure(3)
 imshow(echovals)
 set(gca,'YDir','normal')
-oldvals  = 0:step*numfiles/40.:step*numfiles;
-newvals  = linspace(0,20,length(oldvals));
-set(gca,'XTick', oldvals);
-set(gca,'XTickLabel', newvals);
-set(gca,'YTick', oldvals);
-set(gca,'YTickLabel', newvals);
+% oldvals  = 0:step*numfiles/40.:step*numfiles;
+% newvals  = linspace(0,20,length(oldvals));
+axis on
+xticks(linspace(50,200,4));
+xticklabels(linspace(5,20,4));
+% set(gca,'XTick',linspace(50,200,4) );
+% set(gca,'XTickLabel',linspace(5,20,4) );
+% set(gca,'YTick', oldvals);
+% set(gca,'YTickLabel', newvals);
+yticks(linspace(50,200,4));
+yticklabels(linspace(5,20,4));
+xlabel('Modulation frequency (MHz)');
+ylabel('Storage frequency (MHz)');
+title({'Stored frequency vs programmed frequency';userpath},'Interpreter','none');
+set(gca,'TickDir','out');
+pbaspect([1 1 1])
+
+figure(4)
+imshow(1-echovals)
+set(gca,'YDir','normal')
+axis on
+xticks(linspace(50,200,4));
+xticklabels(linspace(5,20,4));
+yticks(linspace(50,200,4));
+yticklabels(linspace(5,20,4));
+% oldvals  = 0:step*numfiles/40.:step*numfiles;
+% newvals  = linspace(0,20,length(oldvals));
+% set(gca,'XTick', oldvals);
+% set(gca,'XTickLabel', newvals);
+% set(gca,'YTick', oldvals);
+% set(gca,'YTickLabel', newvals);
 xlabel('Modulation frequency (MHz)');
 ylabel('Storage frequency (MHz)');
 title({'Stored frequency vs programmed frequency';userpath},'Interpreter','none');
@@ -174,7 +200,7 @@ pbaspect([1 1 1])
 
 %Plot storage time against programmed time (expect straight line)
 %Show additional harmonics of storage time to show only harmonics get stored
-figure(4)
+figure(5)
 set(gca,'XScale','log','YScale','log');
 xlim([0.05,2]);
 ylim([0.05,2]);
@@ -197,17 +223,35 @@ hold off
 
 %the plot view coincides with the cutoff, so no need to include line.
 %hline(cutoff,'r')
-xlabel('Programmed storage time (\mus)');
-ylabel('Emission time of largest pulse (\mus)');
-title({'Stored time vs programmed time';userpath},'Interpreter','none');
+xlabel('Inverse spacing of optical comb teeth (\mus)');
+ylabel('Emission time of largest echo (\mus)');
+title({'Measured storage time';userpath},'Interpreter','none');
 set(gca,'TickDir','out');
 pbaspect([1 1 1])
 
+figure(6)
+hold on
+for i=1:10
+    plot(freq,i*time,...
+        freq,time/i,'Color',0.1*(i-1)*[1,1,1],'LineWidth',2/i);
+end
+markerSizes= 0.001+300*markerSizes/max(markerSizes);
+scatter(freq,timevals,markerSizes,'MarkerEdgeColor',...
+    [0,0.4470,0.7410],'LineWidth',1.5);
+hold off
+ylim([0,2.1]);
+xlabel('Optical comb tooth spacing (MHz)');
+ylabel('Emission time of largest echo (\mus)');
+title({'Measured storage time';userpath},'Interpreter','none');
+set(gca,'TickDir','out');
+
 if(savefigs)
-savefig(probeFig,'Probes','compact') %saves comb traces
-savefig(echoFig,'Echoes','compact') %saves FFT traces
-print('-f3','Colormap', '-dpdf','-r500','-bestfit') % saves storage time info
-print('-f4','Storage','-dpdf','-r500','-bestfit') %saves efficiency figure
+% savefig(probeFig,'Probes','compact') %saves comb traces
+% savefig(echoFig,'Echoes','compact') %saves FFT traces
+print('-f3','echo_white', '-dpdf','-r500','-bestfit') % saves storage time info
+print('-f4','echo_black', '-dpdf','-r500','-bestfit') % saves storage time info
+print('-f5','echo_loglog','-dpdf','-r500','-bestfit') %saves efficiency figure
+print('-f6','echo_hyperbola','-dpdf','-r500','-bestfit') %saves efficiency figure
 end
 
 end
