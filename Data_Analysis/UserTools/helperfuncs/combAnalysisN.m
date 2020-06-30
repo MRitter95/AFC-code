@@ -77,5 +77,9 @@ f= avgByNs(f,25);
 %our amplifier's V vs. log(I) has slope 0.1.
 comb= comb-0.1*log(sweep);
 df           = f(2)-f(1);
-[amp, freq]  = periodogram(exp(comb/0.1),[],[],1./df);
+[amp, freq]  = periodogram(exp(comb/0.2),[],[],1./df);
+
+%return comb in dB
+comb= 100*log10(exp(1))*comb;
+
 end
