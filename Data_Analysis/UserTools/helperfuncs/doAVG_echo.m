@@ -10,7 +10,7 @@
 %Output: ygain, yoff, scale factor and y offset for LeCroy amplitudes
 
 function [xaxis,normAxis,echoAxis,xInt,xOff,normGain,normOff,...
-    echoGain,echoOff] = doAVG_echo(echoDat,normDat,numtoskip)
+    echoGain,echoOff,histogramData] = doAVG_echo(echoDat,normDat,numtoskip)
 
 numfiles = length(echoDat); %get number of files to process
 
@@ -67,19 +67,36 @@ for k=numtoskip+1:numfiles
     alignedEcho(:,k-numtoskip)= [baselineEcho*...
         ones( max(peaks)-peaks(k-numtoskip),1 );...
         offsetEcho(1:end-max(peaks)+peaks(k-numtoskip),k-numtoskip)];
+    plot(time,alignedEcho(:,k-numtoskip)+k-numtoskip-1)
+    
 end
 
 normAxis= mean(alignedNorm,2);
 echoAxis= mean(alignedEcho,2);
 
-% we have to pad the x axis as well.
-xaxis= [time',linspace(time(end),...
-    time(end)+(max(peaks)-min(peaks))*(time(end)-time(end-1)),...
-    max(peaks)-min(peaks))];
+xaxis= time';
 
 %convert y values back to int16 to store more efficiently  
 normAxis= int16( (normOff+normAxis')/normGain );
 echoAxis= int16( (echoOff+echoAxis')/echoGain );
+
+% histData= echoHistogram(xaxis,alignedEcho-baselineEcho,10)
+
+alignedEcho= alignedEcho(time>1.4e-6,:);
+time= time(time>1.4e-6);
+
+% time= avgByNs(time,10);
+%els= length(time);
+%finalEcho= zeros(els,size(alignedEcho,2));
+
+for j=1:size(alignedEcho,2)
+    %finalEcho(:,j)= avgByNs(alignedEcho(:,j),10);
+    alignedEcho(:,j)= smooth(alignedEcho(:,j),14);
+end
+
+%[pk,index]= max(finalEcho);
+[pk,index]= max(alignedEcho);
+histogramData= [pk',time(index')];
 
 end
  
