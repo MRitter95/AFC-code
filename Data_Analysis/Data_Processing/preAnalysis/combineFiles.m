@@ -40,6 +40,16 @@ folders=files(dirFlags); %only store the folders
 folders=folders(idx); %sorts the folders by frequency
 
 %% Loops through all the folders and processes the data
+
+%if we're looking at echo data, we'll create histograms of echo power and
+%arrival time.
+if(strcmp(exptype,'echo')||...
+        strcmp(exptype,'Echo')||...
+        strcmp(exptype,'ECHO'))
+    histData= cell(length(folders),1);
+end
+
+
 parfor k=1:length(folders)
 
     datafolder=folders(k).name; %get name of current folder
@@ -87,7 +97,8 @@ parfor k=1:length(folders)
                     datafiles{i,2}=[xaxis;yaxis];
                 else        %average scope traces after correcting jitter
                     [~,normAxis,echoAxis,xInt,xOff,normGain,normOff,...
-                        echoGain,echoOff]= doAVG_echo(datafiles{3,1},...
+                        echoGain,echoOff,histData{k}]=...
+                        doAVG_echo(datafiles{3,1},...
                         datafiles{4,1},numtoskip);
                     datafiles{3,2}= echoAxis;
                     datafiles{4,2}= normAxis;
@@ -141,3 +152,6 @@ parfor k=1:length(folders)
     end
     
 end
+%% for echo data, save power/timing information for later reference
+save('traceHistograms.mat','histData');
+echoHistogram;
